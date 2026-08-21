@@ -1,0 +1,35 @@
+title: Suspicious Obfuscated PowerShell ScriptBlock Execution
+id: 593ca48e-289c-449e-884c-7a91176b6d51
+status: production
+description: Detects suspicious PowerShell script block patterns (Event ID 4104) indicative of download cradles, base64 payload decoding, and dynamic API reflection.
+references:
+    - https://attack.mitre.org/techniques/T1059/001/
+    - https://attack.mitre.org/techniques/T1027/
+author: SOC Detection Engineering Team
+date: 2026-04-19
+tags:
+    - attack.execution
+    - attack.defense_evasion
+    - attack.t1059.001
+    - attack.t1027
+logsource:
+    product: windows
+    service: powershell
+detection:
+    selection_event:
+        EventID: 4104
+    suspicious_patterns:
+        ScriptBlockText|contains:
+            - 'FromBase64String'
+            - 'DownloadString'
+            - 'Invoke-Expression'
+            - 'IEX'
+            - 'System.Reflection.Assembly'
+            - 'VirtualAlloc'
+            - 'WriteProcessMemory'
+            - 'Invoke-Mimikatz'
+            - 'MiniDumpWriteDump'
+    condition: selection_event and suspicious_patterns
+falsepositives:
+    - Administrative automation scripts (e.g. SCCM or Intune provisioning scripts)
+level: high

@@ -1,0 +1,7 @@
+2026-04-18 09:00:12 EventID: 4624 Host: DC01.CORP.LOCAL TargetUserName: jsmith SourceIp: 192.168.10.101 Status: 0x0 Reason: Normal User Domain Logon
+2026-04-18 09:01:05 EventID: 4624 Host: DC01.CORP.LOCAL TargetUserName: mjones SourceIp: 192.168.10.102 Status: 0x0 Reason: Normal User Domain Logon
+2026-04-18 09:02:18 EventID: 4624 Host: DC01.CORP.LOCAL TargetUserName: rpatel SourceIp: 192.168.10.103 Status: 0x0 Reason: Normal User Domain Logon
+2026-04-18 09:05:44 EventID: 4624 Host: DC01.CORP.LOCAL TargetUserName: klewis SourceIp: 192.168.10.104 Status: 0x0 Reason: Normal User Domain Logon
+2026-04-18 09:10:02 EventID: 4688 Host: WS-HR-02 TargetUserName: mjones CommandLine: "C:\Program Files\Google\Chrome\Application\chrome.exe" Status: 0x0 Reason: Clean Browser Execution
+2026-04-18 09:15:30 EventID: 4688 Host: WS-ENG-05 TargetUserName: rpatel CommandLine: "C:\Program Files\Microsoft VS Code\Code.exe" Status: 0x0 Reason: Clean IDE Execution
+2026-04-18 09:20:11 EventID: 4624 Host: DC01.CORP.LOCAL TargetUserName: svc_backup SourceIp: 192.168.10.20 Status: 0x0 Reason: Whitelisted Scheduled Backup Task

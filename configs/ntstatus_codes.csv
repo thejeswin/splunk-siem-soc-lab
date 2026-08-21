@@ -1,0 +1,12 @@
+SubStatus,status_meaning,remediation_guidance
+0xC0000064,User logon with non-existent account,Check for username typo or user account enumeration
+0xC000006A,User logon with misspelled or bad password,Verify user password change or password spray attempt
+0xC000006D,The cause is either a bad username or authentication information,General logon failure check Kerberos/NTLM
+0xC000006E,User logon outside authorized hours,Investigate potential compromised credentials or off-hours breach
+0xC000006F,User logon from unauthorized workstation,Investigate lateral movement or rogue device on LAN
+0xC0000070,User logon from unauthorized workstation (NetLogon),Investigate unauthorized workstation
+0xC0000071,User logon with expired password,Prompt user for password reset
+0xC0000072,User logon to account currently disabled,Investigate potential reactivation probe or compromised ex-employee account
+0xC0000193,User logon to account expired,Audit HR offboarding tickets
+0xC0000224,User is required to change password at next logon,Standard policy workflow
+0xC0000234,User account has been locked out,Trigger account unlock procedure and check lock source IP

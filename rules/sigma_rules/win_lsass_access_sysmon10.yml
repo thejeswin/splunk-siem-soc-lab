@@ -1,0 +1,36 @@
+title: LSASS Memory Access via Suspicious Non-System Process
+id: a7422f18-692e-4b2a-89a1-50e50ce022b7
+status: production
+description: Detects open process handles to Local Security Authority Subsystem Service (lsass.exe) with VM_READ or VM_WRITE access masks, typically associated with credential dumping tools (Mimikatz, ProcDump, Nanodump).
+references:
+    - https://attack.mitre.org/techniques/T1003/001/
+author: SOC Detection Engineering Team
+date: 2026-04-18
+tags:
+    - attack.credential_access
+    - attack.t1003.001
+logsource:
+    category: process_access
+    product: windows
+detection:
+    target_lsass:
+        TargetImage|endswith: '\lsass.exe'
+    access_rights:
+        GrantedAccess|contains:
+            - '0x10'     # PROCESS_VM_READ
+            - '0x1fffff' # PROCESS_ALL_ACCESS
+            - '0x1010'
+            - '0x1410'
+            - '0x0400'   # PROCESS_QUERY_INFORMATION
+    filter_legitimate:
+        SourceImage|endswith:
+            - '\system32\csrss.exe'
+            - '\system32\services.exe'
+            - '\system32\svchost.exe'
+            - '\system32\msmpeng.exe'
+            - '\system32\taskmgr.exe' # Optional whitelist or investigate
+    condition: target_lsass and access_rights and not filter_legitimate
+falsepositives:
+    - Third-party Endpoint Detection & Response (EDR) or Antivirus agents
+    - System diagnostic tools running with SYSTEM privilege
+level: critical

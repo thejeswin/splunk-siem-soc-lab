@@ -1,0 +1,38 @@
+title: Windows Multiple Failed Logons - Potential Brute-Force or Password Spray
+id: 8b06871a-6d11-4fa2-938a-442b5a190011
+status: production
+description: Detects multiple failed authentication attempts (Event ID 4625) within a short timeframe (10+ failures within 60 seconds) targeting single or multiple user accounts.
+references:
+    - https://attack.mitre.org/techniques/T1110/001/
+    - https://attack.mitre.org/techniques/T1110/003/
+author: SOC Detection Engineering Team
+date: 2026-04-15
+modified: 2026-04-18
+tags:
+    - attack.credential_access
+    - attack.t1110.001
+    - attack.t1110.003
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4625
+        SubStatus:
+            - '0xC000006A' # STATUS_WRONG_PASSWORD
+            - '0xC0000064' # STATUS_NO_SUCH_USER
+            - '0xC000006D' # STATUS_LOGON_FAILURE
+            - '0xC0000234' # STATUS_ACCOUNT_LOCKED_OUT
+    filter_machine_accounts:
+        TargetUserName|endswith: '$'
+    filter_health_check:
+        TargetUserName:
+            - 'SVC_SPLUNK_HEARTBEAT'
+            - 'HEALTHCHECK_BOT'
+    timeframe: 1m
+    condition: (selection and not filter_machine_accounts and not filter_health_check) | count(TargetUserName) by IpAddress >= 10
+falsepositives:
+    - Misconfigured service accounts with expired passwords
+    - Domain Controller replication glitches
+    - Network vulnerability scanning with authenticated probes
+level: high

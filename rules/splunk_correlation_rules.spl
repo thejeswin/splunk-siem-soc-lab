@@ -1,0 +1,116 @@
+# ==============================================================================
+# Splunk SIEM Enterprise Correlation Rules & Detection Logic
+# Author: SOC Detection Engineer / Cyber Security Analyst
+# Target Ingestion: Windows Security (4625, 4624, 4688, 4104), Sysmon (1, 3, 10, 11)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# RULE 01: Windows Account Brute-Force & Password Spraying Detection
+# MITRE ATT&CK: T1110.001 (Password Guessing), T1110.003 (Password Spraying)
+# Severity: High | Risk Score: 75 | Frequency: Run every 5 minutes
+# Description: Triggers when 10 or more Event ID 4625 (Failed Logon) occur for a single
+# account or source IP within a 60-second sliding window, followed by optional correlation
+# with Event ID 4624 (Successful Logon - Flagging compromised accounts).
+# ------------------------------------------------------------------------------
+index=win_security sourcetype="WinEventLog:Security" EventCode=4625
+| eval TargetUserName=lower(TargetUserName), WorkstationName=upper(WorkstationName), IpAddress=coalesce(IpAddress, Source_Network_Address, "Unknown")
+| search NOT [| inputlookup known_admin_service_accounts.csv | fields TargetUserName ]
+| bin _time span=1m
+| stats count as failed_attempts,
+        values(Failure_Reason) as failure_reasons,
+        values(SubStatus) as substatus_codes,
+        dc(TargetUserName) as distinct_users_targeted,
+        values(TargetUserName) as target_users,
+        earliest(_time) as first_seen,
+        latest(_time) as last_seen
+        by IpAddress, WorkstationName
+| where failed_attempts >= 10 OR (distinct_users_targeted >= 5 AND failed_attempts >= 10)
+| eval attack_type=if(distinct_users_targeted >= 5, "Password Spraying", "Targeted Brute-Force")
+| eval alert_severity=case(failed_attempts > 50, "Critical", failed_attempts >= 20, "High", true(), "Medium")
+| table first_seen, last_seen, IpAddress, WorkstationName, attack_type, target_users, distinct_users_targeted, failed_attempts, failure_reasons, alert_severity
+
+
+# ------------------------------------------------------------------------------
+# RULE 02: Malicious Office Macro Spawning Living-Off-The-Land Binaries (LOLBins)
+# MITRE ATT&CK: T1204.002 (Malicious File), T1059.001 (PowerShell), T1059.003 (cmd)
+# Severity: Critical | Risk Score: 90 | Frequency: Real-Time / 1 Minute
+# Description: Identifies Microsoft Office processes (WINWORD.EXE, EXCEL.EXE, POWERPNT.EXE)
+# spawning suspicious script interpreters (powershell.exe, cmd.exe, wscript.exe, mshta.exe, certutil.exe).
+# ------------------------------------------------------------------------------
+index=win_sysmon sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventCode=1
+| eval ParentImage=lower(ParentImage), Image=lower(Image)
+| search (ParentImage="*\\winword.exe" OR ParentImage="*\\excel.exe" OR ParentImage="*\\powerpnt.exe" OR ParentImage="*\\eqnedt32.exe")
+    AND (Image="*\\powershell.exe" OR Image="*\\pwsh.exe" OR Image="*\\cmd.exe" OR Image="*\\wscript.exe" OR Image="*\\cscript.exe" OR Image="*\\mshta.exe" OR Image="*\\certutil.exe" OR Image="*\\bitsadmin.exe" OR Image="*\\rundll32.exe")
+| eval CommandLine_Length=len(CommandLine)
+| eval ObfuscationDetected=if(match(CommandLine, "(?i)(-enc|-encodedcommand|frombase64string|downloadstring|iex|invoke-expression|bypass|-w hidden)"), "YES", "NO")
+| table _time, Computer, User, ParentImage, ParentCommandLine, Image, CommandLine, ProcessId, ObfuscationDetected
+
+
+# ------------------------------------------------------------------------------
+# RULE 03: PowerShell Script Block De-Obfuscation & In-Memory Execution
+# MITRE ATT&CK: T1059.001 (PowerShell), T1027 (Obfuscated Files or Information)
+# Severity: High | Risk Score: 80 | Frequency: Run every 5 minutes
+# Description: Inspects Windows PowerShell Event ID 4104 (ScriptBlock Logging) for
+# evasion techniques: base64 payload decoding, IEX download cradles, and memory reflection.
+# ------------------------------------------------------------------------------
+index=win_security sourcetype="WinEventLog:Microsoft-Windows-PowerShell/Operational" EventCode=4104
+| eval ScriptBlockText_Length=len(ScriptBlockText)
+| rex field=ScriptBlockText "(?i)(?<c2_domain>https?://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(?::[0-9]+)?/[^\"\'\s]+)"
+| search (ScriptBlockText="*System.Reflection.Assembly*" OR ScriptBlockText="*Invoke-Mimikatz*" OR ScriptBlockText="*Net.WebClient*" OR ScriptBlockText="*DownloadFile*" OR ScriptBlockText="*DownloadString*" OR ScriptBlockText="*IEX*" OR ScriptBlockText="*FromBase64String*" OR ScriptBlockText="*VirtualAlloc*" OR ScriptBlockText="*MiniDumpWriteDump*")
+| eval SuspicionScore=0
+| eval SuspicionScore=if(match(ScriptBlockText, "(?i)FromBase64String"), SuspicionScore+30, SuspicionScore)
+| eval SuspicionScore=if(match(ScriptBlockText, "(?i)DownloadString|Net.WebClient"), SuspicionScore+30, SuspicionScore)
+| eval SuspicionScore=if(match(ScriptBlockText, "(?i)VirtualAlloc|WriteProcessMemory"), SuspicionScore+40, SuspicionScore)
+| where SuspicionScore >= 60
+| table _time, Computer, User_ID, ScriptBlockId, SuspicionScore, c2_domain, ScriptBlockText
+
+
+# ------------------------------------------------------------------------------
+# RULE 04: LSASS Memory Access & Credential Dumping (Sysmon Event ID 10)
+# MITRE ATT&CK: T1003.001 (OS Credential Dumping: LSASS Memory)
+# Severity: Critical | Risk Score: 95 | Frequency: Real-Time / 1 Minute
+# Description: Detects unauthorized processes requesting PROCESS_VM_READ (0x0010) or
+# PROCESS_QUERY_INFORMATION (0x0400) rights against lsass.exe (e.g., Mimikatz, Taskmgr, procdump).
+# ------------------------------------------------------------------------------
+index=win_sysmon sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventCode=10
+| eval TargetImage=lower(TargetImage), SourceImage=lower(SourceImage)
+| search TargetImage="*\\lsass.exe"
+    AND NOT (SourceImage="*\\system32\\csrss.exe" OR SourceImage="*\\system32\\services.exe" OR SourceImage="*\\system32\\svchost.exe" OR SourceImage="*\\system32\\msmpeng.exe" OR SourceImage="*\\windows defender\\*")
+| eval GrantedAccess_Hex=lower(GrantedAccess)
+| search (GrantedAccess_Hex="*0x10*" OR GrantedAccess_Hex="*0x1fffff*" OR GrantedAccess_Hex="*0x1010*" OR GrantedAccess_Hex="*0x1410*" OR GrantedAccess_Hex="*0x0400*")
+| eval ProcessName=mvindex(split(SourceImage, "\\"), -1)
+| eval is_known_admin_tool=if(match(ProcessName, "(?i)(procdump|taskmgr|rundll32|mimikatz|dumpert|sqldumper|comsvcs)"), "YES", "SUSPICIOUS_UNKNOWN")
+| table _time, Computer, SourceImage, ProcessName, TargetImage, GrantedAccess, CallTrace, is_known_admin_tool
+
+
+# ------------------------------------------------------------------------------
+# RULE 05: Suspicious Outbound Network Beaconing / C2 Communication
+# MITRE ATT&CK: T1071.001 (Web Protocols: C2 Beaconing), T1043 (Commonly Used Port)
+# Severity: Medium | Risk Score: 60 | Frequency: Run every 15 minutes
+# Description: Correlates Sysmon Event ID 3 (Network Connection) to detect abnormal outbound
+# beacon intervals (delta variance < 2s) from non-standard system binaries.
+# ------------------------------------------------------------------------------
+index=win_sysmon sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventCode=3 Initiated=true
+| search DestinationIsIpv6=false NOT (DestinationIp="10.*" OR DestinationIp="172.16.*" OR DestinationIp="192.168.*" OR DestinationIp="127.0.0.1")
+| eval ImageName=mvindex(split(Image, "\\"), -1)
+| search NOT (ImageName="chrome.exe" OR ImageName="msedge.exe" OR ImageName="firefox.exe" OR ImageName="onedrive.exe" OR ImageName="teams.exe")
+| streamstats current=f window=1 last(_time) as prev_time by Computer, Image, DestinationIp, DestinationPort
+| eval time_delta=_time - prev_time
+| stats count, avg(time_delta) as avg_interval, stdev(time_delta) as jitter, values(DestinationHostname) as dest_host by Computer, Image, DestinationIp, DestinationPort
+| where count >= 8 AND jitter <= 2.5
+| eval ThreatLabel="High-Probability Periodic C2 Beacon"
+| table Computer, Image, DestinationIp, DestinationPort, dest_host, count, avg_interval, jitter, ThreatLabel
+
+
+# ------------------------------------------------------------------------------
+# RULE 06: Lateral Movement via PsExec / Service Installation (Event ID 7045 & Sysmon 1)
+# MITRE ATT&CK: T1021.002 (SMB/Windows Admin Shares), T1543.003 (Windows Service)
+# Severity: High | Risk Score: 85 | Frequency: Run every 5 minutes
+# Description: Flags new service installations executing binaries out of ADMIN$, C$, or
+# AppData directories with system privileges.
+# ------------------------------------------------------------------------------
+index=win_system sourcetype="WinEventLog:System" EventCode=7045
+| eval ImagePath=lower(ImagePath), ServiceName=lower(ServiceName)
+| search (ImagePath="*\\admin$\\*" OR ImagePath="*\\c$\\*" OR ImagePath="*\\users\\*\\appdata\\*" OR ImagePath="*\\temp\\*" OR ServiceName="*psexec*" OR ServiceName="*paexec*")
+| eval ServiceAccount=lower(AccountName)
+| table _time, Computer, ServiceName, ImagePath, ServiceType, StartType, ServiceAccount

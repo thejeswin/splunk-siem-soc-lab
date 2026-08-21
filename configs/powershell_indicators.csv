@@ -1,0 +1,12 @@
+signature_pattern,indicator_threat_level,technique_id
+FromBase64String,High,T1027
+DownloadString,High,T1059.001
+Net.WebClient,Medium,T1059.001
+VirtualAlloc,Critical,T1055
+WriteProcessMemory,Critical,T1055
+Invoke-Mimikatz,Critical,T1003.001
+MiniDumpWriteDump,Critical,T1003.001
+System.Reflection.Assembly,High,T1059.001
+IEX,High,T1059.001
+bypass,Medium,T1562.001
+-w hidden,Medium,T1564.001

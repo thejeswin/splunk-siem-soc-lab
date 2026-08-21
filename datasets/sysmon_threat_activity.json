@@ -1,0 +1,81 @@
+[
+  {
+    "_time": "2026-04-18T15:12:05.000Z",
+    "EventCode": 10,
+    "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+    "Computer": "FIN-WS-09.CORP.LOCAL",
+    "SourceImage": "C:\\Windows\\Temp\\procdump64.exe",
+    "TargetImage": "C:\\Windows\\System32\\lsass.exe",
+    "GrantedAccess": "0x1fffff",
+    "CallTrace": "C:\\Windows\\SYSTEM32\\ntdll.dll+9d454|C:\\Windows\\System32\\KERNELBASE.dll+3af1d|C:\\Windows\\Temp\\procdump64.exe+7b12",
+    "ProcessId": 9812,
+    "TargetProcessId": 648,
+    "attack_tag": "T1003.001-LSASSAccess"
+  },
+  {
+    "_time": "2026-04-18T15:12:09.000Z",
+    "EventCode": 11,
+    "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+    "Computer": "FIN-WS-09.CORP.LOCAL",
+    "User": "CORP\\cjohnson",
+    "Image": "C:\\Windows\\Temp\\procdump64.exe",
+    "TargetFilename": "C:\\Windows\\Temp\\lsass.dmp",
+    "CreationUtcTime": "2026-04-18 15:12:09.112",
+    "attack_tag": "T1003.001-MemoryDumpFile"
+  },
+  {
+    "_time": "2026-04-18T15:15:30.000Z",
+    "EventCode": 1,
+    "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+    "Computer": "FIN-WS-09.CORP.LOCAL",
+    "User": "NT AUTHORITY\\SYSTEM",
+    "ParentImage": "C:\\Windows\\System32\\services.exe",
+    "Image": "C:\\Windows\\Temp\\PSEXESVC.exe",
+    "CommandLine": "C:\\Windows\\Temp\\PSEXESVC.exe",
+    "ProcessId": 10424,
+    "ParentProcessId": 632,
+    "attack_tag": "T1021.002-PsExecService"
+  },
+  {
+    "_time": "2026-04-18T15:16:01.000Z",
+    "EventCode": 3,
+    "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+    "Computer": "FIN-WS-09.CORP.LOCAL",
+    "User": "CORP\\cjohnson",
+    "Image": "C:\\Windows\\Temp\\beacon.exe",
+    "SourceIp": "192.168.10.42",
+    "SourcePort": 49201,
+    "DestinationIp": "185.220.101.5",
+    "DestinationPort": 4444,
+    "Initiated": true,
+    "attack_tag": "T1071.001-C2Beacon"
+  },
+  {
+    "_time": "2026-04-18T15:16:31.000Z",
+    "EventCode": 3,
+    "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+    "Computer": "FIN-WS-09.CORP.LOCAL",
+    "User": "CORP\\cjohnson",
+    "Image": "C:\\Windows\\Temp\\beacon.exe",
+    "SourceIp": "192.168.10.42",
+    "SourcePort": 49204,
+    "DestinationIp": "185.220.101.5",
+    "DestinationPort": 4444,
+    "Initiated": true,
+    "attack_tag": "T1071.001-C2Beacon"
+  },
+  {
+    "_time": "2026-04-18T15:17:01.000Z",
+    "EventCode": 3,
+    "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+    "Computer": "FIN-WS-09.CORP.LOCAL",
+    "User": "CORP\\cjohnson",
+    "Image": "C:\\Windows\\Temp\\beacon.exe",
+    "SourceIp": "192.168.10.42",
+    "SourcePort": 49208,
+    "DestinationIp": "185.220.101.5",
+    "DestinationPort": 4444,
+    "Initiated": true,
+    "attack_tag": "T1071.001-C2Beacon"
+  }
+]

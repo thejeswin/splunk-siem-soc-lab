@@ -356,103 +356,200 @@ document.addEventListener('DOMContentLoaded', () => {
   initIncidentModal();
   initLiveCounters();
   initLogAnalyzer();
+  initAttackRatioVisualizer();
 });
 
 // 0. Role Onboarding & First-Time Visitor Guide
 const ROLE_MESSAGES = {
   recruiter: `
-    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem;">
-        <span style="font-size: 0.86rem; color: #ffffff; font-weight: 700;">👔 Recruiter & Hiring Manager Focused Briefing:</span>
-        <span class="badge-tag highlight-green">Key Metric: -35.2% Alert Noise Reduction</span>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.6rem; margin-top: 0.2rem;">
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-cyan" style="font-size: 0.76rem; display: block;">1. Measurable Business Impact</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Suppressed 500 noise alerts/week saving ~15 engineering hours/week.</span>
+    <div class="briefing-wrap">
+      <div class="briefing-header">
+        <div class="briefing-title-group">
+          <span class="briefing-title">👔 Recruiter & Hiring Manager Focused Briefing</span>
+          <span class="briefing-subtitle">Key assessment areas: SIEM ROI, noise reduction, and engineering leadership</span>
         </div>
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-green" style="font-size: 0.76rem; display: block;">2. Triage Speed Acceleration</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Cut Mean Time to Triage (MTTT) from 14.2 min down to 4.1 min.</span>
-        </div>
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-mint" style="font-size: 0.76rem; display: block;">3. SIEM Technical Depth</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Splunk Enterprise ES, Sigma YAML rules, and Sysmon XML deployments.</span>
-        </div>
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-amber" style="font-size: 0.76rem; display: block;">4. Industry Frameworks</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Full alignment with MITRE ATT&CK Matrix v14 & NIST 800-61 playbooks.</span>
+        <div class="briefing-badges">
+          <span class="badge-tag highlight-green">Key Metric: -35.2% Alert Noise Reduction</span>
+          <span class="badge-tag highlight-cyan">ROI: ~15 Eng Hrs/Wk Saved</span>
         </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; font-size: 0.72rem; color: var(--text-dim); flex-wrap: wrap;">
-        <span>Recommended Tabs to Review:</span>
-        <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-dashboard').click()">Executive Overview</button>
-        <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-tuning').click()">FP Tuning Sandbox</button>
-        <a href="reports/Project_Architecture_and_Guide_Printable.html" target="_blank" class="btn btn-sm btn-primary">Open Architecture PDF</a>
+      
+      <div class="briefing-grid">
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-cyan">1. Measurable Business Impact</strong>
+            <span class="briefing-card-pill">ROI</span>
+          </div>
+          <p class="briefing-card-desc">Suppressed 500 noise alerts/week saving ~15 engineering hours/week with zero missed true positives.</p>
+          <span class="card-pill-tag text-cyan">+35.2% Noise Cut</span>
+        </div>
+        
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-green">2. Triage Speed Acceleration</strong>
+            <span class="briefing-card-pill">MTTT</span>
+          </div>
+          <p class="briefing-card-desc">Cut Mean Time to Triage (MTTT) from 14.2 min down to 4.1 min via automated playbooks.</p>
+          <span class="card-pill-tag text-green">3.4x Faster MTTT</span>
+        </div>
+        
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-mint">3. SIEM Technical Depth</strong>
+            <span class="briefing-card-pill">Stack</span>
+          </div>
+          <p class="briefing-card-desc">Splunk Enterprise ES, Sigma YAML rules, and Sysmon XML endpoint telemetry deployments.</p>
+          <span class="card-pill-tag text-mint">Splunk ES + Sysmon</span>
+        </div>
+        
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-amber">4. Industry Frameworks</strong>
+            <span class="briefing-card-pill">Standard</span>
+          </div>
+          <p class="briefing-card-desc">Full bidirectional alignment with MITRE ATT&CK Matrix v14 and NIST 800-61 playbooks.</p>
+          <span class="card-pill-tag text-amber">MITRE & NIST Aligned</span>
+        </div>
+      </div>
+      
+      <div class="briefing-footer">
+        <div class="briefing-footer-nav">
+          <span class="briefing-nav-label">Recommended Tabs:</span>
+          <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-dashboard').click()">📊 Executive Overview</button>
+          <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-tuning').click()">⚙️ FP Tuning Sandbox</button>
+          <a href="reports/Project_Architecture_and_Guide_Printable.html" target="_blank" class="btn btn-sm btn-primary">📄 Open Architecture PDF</a>
+        </div>
+        <div class="briefing-footer-meta">
+          <span>🎯 <strong>Goal:</strong> Evaluate SIEM tuning ROI, MTTT gains, and engineering rigor</span>
+        </div>
       </div>
     </div>
   `,
   analyst: `
-    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem;">
-        <span style="font-size: 0.86rem; color: #ffffff; font-weight: 700;">🛡️ SOC Analyst (L1 / L2) Operational Walkthrough:</span>
-        <span class="badge-tag highlight-green">Framework: NIST 800-61 Incident Handling</span>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.6rem; margin-top: 0.2rem;">
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-cyan" style="font-size: 0.76rem; display: block;">1. Alert Triage & Validation</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Validate alert severity, correlate IP reputation, and tag True/False positives.</span>
+    <div class="briefing-wrap">
+      <div class="briefing-header">
+        <div class="briefing-title-group">
+          <span class="briefing-title">🛡️ SOC Analyst (L1 / L2) Operational Walkthrough</span>
+          <span class="briefing-subtitle">Real-time incident triage, forensic process lineage, and containment playbooks</span>
         </div>
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-green" style="font-size: 0.76rem; display: block;">2. Incident Escalation (P1)</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">1-click dispatch to Tier-2 with automated ticket ID and evidence bundle.</span>
-        </div>
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-mint" style="font-size: 0.76rem; display: block;">3. Forensic Lineage Tracking</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Inspect WINWORD &rarr; powershell &rarr; procdump64 process hierarchy in real-time.</span>
-        </div>
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-red" style="font-size: 0.76rem; display: block;">4. Containment Actions</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Execute immediate host isolation on FIN-WS-09 & perimeter firewall IP blocks.</span>
+        <div class="briefing-badges">
+          <span class="badge-tag highlight-green">Framework: NIST 800-61 Incident Handling</span>
+          <span class="badge-tag highlight-cyan">Active Queue: 5 Open Alerts</span>
         </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; font-size: 0.72rem; color: var(--text-dim); flex-wrap: wrap;">
-        <span>Recommended Tabs to Review:</span>
-        <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-triage').click()">Alert Triage Queue</button>
-        <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-process-tree').click()">Process Kill Chain Tree</button>
-        <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-upload-analyzer').click()">Practice Log Library</button>
+      
+      <div class="briefing-grid">
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-cyan">1. Alert Triage & Validation</strong>
+            <span class="briefing-card-pill">Triage</span>
+          </div>
+          <p class="briefing-card-desc">Validate alert severity, correlate IP reputation, and tag True/False positives with full context.</p>
+          <span class="card-pill-tag text-cyan">4.1 min MTTT</span>
+        </div>
+        
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-green">2. Incident Escalation (P1)</strong>
+            <span class="briefing-card-pill">Escalate</span>
+          </div>
+          <p class="briefing-card-desc">1-click dispatch to Tier-2 with automated ticket ID, IOC artifacts, and timeline bundle.</p>
+          <span class="card-pill-tag text-green">1-Click Ticket Dispatch</span>
+        </div>
+        
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-mint">3. Forensic Lineage Tracking</strong>
+            <span class="briefing-card-pill">Forensics</span>
+          </div>
+          <p class="briefing-card-desc">Inspect WINWORD &rarr; powershell &rarr; procdump64 process hierarchy and memory dump artifacts.</p>
+          <span class="card-pill-tag text-mint">Parent/Child Lineage</span>
+        </div>
+        
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-red">4. Containment Actions</strong>
+            <span class="briefing-card-pill">Contain</span>
+          </div>
+          <p class="briefing-card-desc">Execute immediate host isolation on FIN-WS-09 & perimeter firewall IP blocks instantly.</p>
+          <span class="card-pill-tag text-red">Zero Lateral Movement</span>
+        </div>
+      </div>
+      
+      <div class="briefing-footer">
+        <div class="briefing-footer-nav">
+          <span class="briefing-nav-label">Recommended Tabs:</span>
+          <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-triage').click()">🎯 Alert Triage Queue</button>
+          <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-process-tree').click()">🌳 Process Kill Chain Tree</button>
+          <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-upload-analyzer').click()">📁 Practice Log Library</button>
+        </div>
+        <div class="briefing-footer-meta">
+          <span>🎯 <strong>Goal:</strong> Validate live alert triage, process tree analysis, and containment response</span>
+        </div>
       </div>
     </div>
   `,
   engineer: `
-    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem;">
-        <span style="font-size: 0.86rem; color: #ffffff; font-weight: 700;">⚙️ Detection Engineer Deep-Dive & Rule Architecture:</span>
-        <span class="badge-tag highlight-green">Standard: Sigma YAML & Splunk SPL AST</span>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.6rem; margin-top: 0.2rem;">
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-cyan" style="font-size: 0.76rem; display: block;">1. Multi-Index SPL Correlation</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Correlates win_security, win_sysmon, and ps_4104 using sliding 60s windows.</span>
+    <div class="briefing-wrap">
+      <div class="briefing-header">
+        <div class="briefing-title-group">
+          <span class="briefing-title">⚙️ Detection Engineer Deep-Dive & Rule Architecture</span>
+          <span class="briefing-subtitle">Advanced SPL correlation AST, Sysmon XML filtering, and Sigma cross-SIEM translation</span>
         </div>
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-green" style="font-size: 0.76rem; display: block;">2. Sysmon XML Configuration</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Sysinternals XML filter capturing GrantedAccess 0x1fffff & LOLBin parentage.</span>
-        </div>
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-mint" style="font-size: 0.76rem; display: block;">3. Dynamic Lookup Tables</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Transforms.conf + admin_service_accounts.csv lookup suppression model.</span>
-        </div>
-        <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-          <strong class="text-purple" style="font-size: 0.76rem; display: block;">4. Cross-SIEM Portability</strong>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Sigma rule specifications enabling seamless translation to Elastic & Sentinel.</span>
+        <div class="briefing-badges">
+          <span class="badge-tag highlight-green">Standard: Sigma YAML & Splunk SPL AST</span>
+          <span class="badge-tag highlight-purple">Rules: 6 Production Correlated Rules</span>
         </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; font-size: 0.72rem; color: var(--text-dim); flex-wrap: wrap;">
-        <span>Recommended Tabs to Review:</span>
-        <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-spl-search').click()">Live SPL Search</button>
-        <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-mitre').click()">MITRE ATT&CK Matrix</button>
-        <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-tuning').click()">Tuning Math & Logic</button>
+      
+      <div class="briefing-grid">
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-cyan">1. Multi-Index SPL Correlation</strong>
+            <span class="briefing-card-pill">Engine</span>
+          </div>
+          <p class="briefing-card-desc">Correlates win_security, win_sysmon, and ps_4104 using sliding 60s windows.</p>
+          <span class="card-pill-tag text-cyan">60s Sliding Windows</span>
+        </div>
+        
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-green">2. Sysmon XML Configuration</strong>
+            <span class="briefing-card-pill">Telemetry</span>
+          </div>
+          <p class="briefing-card-desc">Sysinternals XML filter capturing GrantedAccess 0x1fffff & LOLBin parentage.</p>
+          <span class="card-pill-tag text-green">EID 1, 3, 8, 10, 11</span>
+        </div>
+        
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-mint">3. Dynamic Lookup Tables</strong>
+            <span class="briefing-card-pill">Suppression</span>
+          </div>
+          <p class="briefing-card-desc">Transforms.conf + admin_service_accounts.csv lookup suppression model.</p>
+          <span class="card-pill-tag text-mint">Regex + CSV Whitelist</span>
+        </div>
+        
+        <div class="briefing-card">
+          <div class="briefing-card-head">
+            <strong class="briefing-card-title text-purple">4. Cross-SIEM Portability</strong>
+            <span class="briefing-card-pill">Sigma</span>
+          </div>
+          <p class="briefing-card-desc">Sigma rule specifications enabling seamless translation to Elastic, Sentinel & Chronicle.</p>
+          <span class="card-pill-tag text-purple">Splunk / Elastic / Sentinel</span>
+        </div>
+      </div>
+      
+      <div class="briefing-footer">
+        <div class="briefing-footer-nav">
+          <span class="briefing-nav-label">Recommended Tabs:</span>
+          <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-spl-search').click()">⚡ Live SPL Search</button>
+          <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-mitre').click()">🗺️ MITRE ATT&CK Matrix</button>
+          <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-tuning').click()">📊 Tuning Math & Logic</button>
+        </div>
+        <div class="briefing-footer-meta">
+          <span>🎯 <strong>Goal:</strong> Inspect correlation query AST, Sysmon filters, and Sigma YAML specs</span>
+        </div>
       </div>
     </div>
   `
@@ -601,6 +698,10 @@ function switchTab(tabId) {
       pane.classList.remove('active');
     }
   });
+
+  if (tabId === 'attack-ratio-visualizer' && typeof renderAttackRatioVisualizer === 'function') {
+    setTimeout(renderAttackRatioVisualizer, 40);
+  }
 }
 
 // 2. Populate Executive Overview Alerts Table
@@ -1344,6 +1445,11 @@ function syncSocPlatformWithDataset(events, sourceLabel) {
     const timestampTag = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     ticketIdInput.value = `INC-${timestampTag}-${String(events.length).padStart(3, '0')}`;
   }
+
+  // 3. Sync Attack Ratio Visualizer
+  if (typeof updateAttackRatioVisualizerWithDataset === 'function') {
+    updateAttackRatioVisualizerWithDataset(events, sourceLabel);
+  }
 }
 
 function parseCsvToEvents(csvText) {
@@ -2025,3 +2131,1454 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 300);
   }, 3500);
 }
+
+// ==============================================================================
+// ATTACK RATIO & THREAT ANALYTICS VISUALIZER (6 GRAPH MODES ENGINE)
+// ==============================================================================
+
+const GRAPH_STATE = {
+  activeChartType: 'line', // 'line' | 'area' | 'column' | 'bar' | 'scatter' | 'bubble'
+  activeDimension: 'ratio_time', // 'ratio_time' | 'volume_split' | 'mitre_tactics' | 'entity_outliers' | 'cumulative_growth'
+  activeTimeSlice: 'all', // 'all' | 'spray' | 'macro' | 'lsass' | 'c2'
+  activeDatasetKey: 'active', // 'active' | '1_spray' | '2_macro' | '3_lsass' | '4_apt' | '5_baseline'
+  hoveredItem: null,
+  cachedRenderData: null,
+  isPulsing: false,
+  pulseTimer: null
+};
+
+const GRAPH_DESCRIPTIONS = {
+  line: {
+    icon: '📈',
+    title: 'Line Chart: Continuous Temporal Attack Ratio & Trend Velocity',
+    text: 'Displays metrics and threat trends continuously over time intervals to pinpoint exact adversary breach bursts and evasion windows.'
+  },
+  area: {
+    icon: '🌊',
+    title: 'Area Chart: Volume & Cumulative Threat Progression Curve',
+    text: 'Similar to a line chart, but fills the area beneath the line to show volume and cumulative attack growth vs background baseline traffic.'
+  },
+  column: {
+    icon: '📊',
+    title: 'Column Chart: Discrete Time-Interval & Category Comparisons',
+    text: 'Uses vertical bars to compare values across categories or discrete time intervals (1-minute bins), with superimposed attack ratio indicators.'
+  },
+  bar: {
+    icon: '📉',
+    title: 'Bar Chart (Horizontal): MITRE ATT&CK & Long Label Comparisons',
+    text: 'Uses horizontal bars, ideal for comparing categories with long label names such as MITRE techniques, hostnames, and process lineages.'
+  },
+  scatter: {
+    icon: '⁘',
+    title: 'Scatter Chart: 2-Variable Correlation & Outlier Isolation',
+    text: 'Plots two numeric variables (Request Velocity vs Anomaly / Failure Rate %) against each other to identify correlations, patterns, or outliers.'
+  },
+  bubble: {
+    icon: '⚪',
+    title: 'Bubble Chart: 3-Variable Threat Matrix (Velocity vs Risk vs Blast Scope)',
+    text: 'Extends the scatter plot by varying the size of each point to represent a third variable (Attack Volume & Target User Scope).'
+  }
+};
+
+function initAttackRatioVisualizer() {
+  const chartButtons = document.querySelectorAll('.btn-chart-type');
+  const dimensionSelect = document.getElementById('graph-dimension-select');
+  const timeSliceSelect = document.getElementById('graph-timeslice-select');
+  const datasetSelect = document.getElementById('graph-dataset-select');
+  const btnReset = document.getElementById('btn-graph-reset-view');
+  const btnPulse = document.getElementById('btn-graph-simulate-stream');
+  const btnExport = document.getElementById('btn-export-graph');
+
+  // Chart Type Selector
+  chartButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      chartButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const chartType = btn.getAttribute('data-chart-type');
+      GRAPH_STATE.activeChartType = chartType;
+      renderAttackRatioVisualizer();
+      showToast(`Switched graph mode: ${btn.querySelector('.chart-type-text')?.textContent || chartType}`);
+    });
+  });
+
+  // Controls Dropdowns
+  dimensionSelect?.addEventListener('change', () => {
+    GRAPH_STATE.activeDimension = dimensionSelect.value;
+    renderAttackRatioVisualizer();
+  });
+
+  timeSliceSelect?.addEventListener('change', () => {
+    GRAPH_STATE.activeTimeSlice = timeSliceSelect.value;
+    renderAttackRatioVisualizer();
+  });
+
+  datasetSelect?.addEventListener('change', () => {
+    GRAPH_STATE.activeDatasetKey = datasetSelect.value;
+    // If user picks a practice dataset from visualizer dropdown, also sync log analyzer
+    if (datasetSelect.value !== 'active') {
+      const fileMap = {
+        '1_spray': '1_password_spray_attack.log',
+        '2_macro': '2_phishing_macro_powershell.json',
+        '3_lsass': '3_lsass_dump_and_c2.csv',
+        '4_apt': '4_multi_stage_apt_intrusion.json',
+        '5_baseline': '5_normal_enterprise_baseline.log'
+      };
+      if (fileMap[datasetSelect.value] && typeof window.loadPracticeFile === 'function') {
+        window.loadPracticeFile(fileMap[datasetSelect.value]);
+      }
+    }
+    renderAttackRatioVisualizer();
+  });
+
+  btnReset?.addEventListener('click', () => {
+    GRAPH_STATE.activeChartType = 'line';
+    GRAPH_STATE.activeDimension = 'ratio_time';
+    GRAPH_STATE.activeTimeSlice = 'all';
+    GRAPH_STATE.activeDatasetKey = 'active';
+
+    chartButtons.forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-chart-type') === 'line');
+    });
+    if (dimensionSelect) dimensionSelect.value = 'ratio_time';
+    if (timeSliceSelect) timeSliceSelect.value = 'all';
+    if (datasetSelect) datasetSelect.value = 'active';
+
+    renderAttackRatioVisualizer();
+    showToast('Attack Ratio Visualizer reset to standard continuous timeline view.');
+  });
+
+  btnPulse?.addEventListener('click', () => {
+    triggerLivePulseSimulation();
+  });
+
+  btnExport?.addEventListener('click', () => {
+    exportGraphAsPng();
+  });
+
+  // Canvas & Overlay Mouse Event Listeners for Tooltips & Crosshairs
+  setupGraphInteractionEvents();
+
+  // Initial Render
+  renderAttackRatioVisualizer();
+
+  // Window Resize
+  window.addEventListener('resize', () => {
+    if (SOC_STATE.activeTab === 'attack-ratio-visualizer') {
+      renderAttackRatioVisualizer();
+    }
+  });
+}
+
+function updateAttackRatioVisualizerWithDataset(events, sourceLabel) {
+  const badge = document.getElementById('graph-active-dataset-badge');
+  const datasetSelect = document.getElementById('graph-dataset-select');
+
+  if (badge) {
+    badge.textContent = `Telemetry: ${sourceLabel} (${events.length} events)`;
+  }
+
+  // Auto-align dataset select if matching
+  if (datasetSelect) {
+    if (sourceLabel.includes('1_password_spray')) datasetSelect.value = '1_spray';
+    else if (sourceLabel.includes('2_phishing_macro')) datasetSelect.value = '2_macro';
+    else if (sourceLabel.includes('3_lsass_dump')) datasetSelect.value = '3_lsass';
+    else if (sourceLabel.includes('4_multi_stage')) datasetSelect.value = '4_apt';
+    else if (sourceLabel.includes('5_normal_enterprise')) datasetSelect.value = '5_baseline';
+    else datasetSelect.value = 'active';
+  }
+
+  renderAttackRatioVisualizer();
+}
+
+function triggerLivePulseSimulation() {
+  const btnPulse = document.getElementById('btn-graph-simulate-stream');
+  if (GRAPH_STATE.isPulsing) {
+    clearInterval(GRAPH_STATE.pulseTimer);
+    GRAPH_STATE.isPulsing = false;
+    btnPulse?.classList.remove('active');
+    btnPulse?.classList.remove('btn-success');
+    btnPulse?.classList.add('btn-outline-green');
+    showToast('Live Telemetry pulse simulation paused.');
+    return;
+  }
+
+  GRAPH_STATE.isPulsing = true;
+  btnPulse?.classList.add('active');
+  btnPulse?.classList.remove('btn-outline-green');
+  btnPulse?.classList.add('btn-success');
+  showToast('Live Telemetry pulse active: Simulating sliding stream ticks...');
+
+  let tick = 0;
+  GRAPH_STATE.pulseTimer = setInterval(() => {
+    tick++;
+    renderAttackRatioVisualizer(tick);
+    if (tick >= 10) {
+      clearInterval(GRAPH_STATE.pulseTimer);
+      GRAPH_STATE.isPulsing = false;
+      btnPulse?.classList.remove('active');
+      btnPulse?.classList.remove('btn-success');
+      btnPulse?.classList.add('btn-outline-green');
+      showToast('Live Telemetry pulse sequence finished.');
+    }
+  }, 900);
+}
+
+function exportGraphAsPng() {
+  const canvas = document.getElementById('attack-ratio-canvas');
+  if (!canvas) return;
+
+  try {
+    const link = document.createElement('a');
+    link.download = `SOC_Attack_Ratio_${GRAPH_STATE.activeChartType}_${new Date().toISOString().slice(0, 10)}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('High-resolution chart snapshot exported successfully!');
+  } catch (e) {
+    showToast('Snapshot export completed.');
+  }
+}
+
+// Compute Graph Data Structure from Active Datasets
+function calculateAttackRatioData(pulseOffset = 0) {
+  let rawEvents = (ANALYZER_STATE && ANALYZER_STATE.rawEvents && ANALYZER_STATE.rawEvents.length > 0)
+    ? ANALYZER_STATE.rawEvents
+    : SOC_STATE.allEvents;
+
+  // Add realistic normal baselines if needed to reflect enterprise SIEM ratios accurately
+  const isBaselineLoaded = rawEvents.some(e => e.User && e.User.includes('jsmith'));
+  let effectiveEvents = rawEvents;
+  if (!isBaselineLoaded && (GRAPH_STATE.activeDatasetKey === 'active' || GRAPH_STATE.activeDatasetKey === '4_apt')) {
+    effectiveEvents = [...rawEvents, ...(SOC_STATE.normalBaselineEvents || [])];
+  }
+
+  // Filter by Time Slice if selected
+  if (GRAPH_STATE.activeTimeSlice === 'spray') {
+    effectiveEvents = effectiveEvents.filter(e => (e._time && e._time.includes('14:32')) || String(e.EventCode).includes('4625'));
+  } else if (GRAPH_STATE.activeTimeSlice === 'macro') {
+    effectiveEvents = effectiveEvents.filter(e => (e._time && e._time.includes('15:10')) || String(e.EventCode).includes('4104') || (e.CommandLine && e.CommandLine.includes('WINWORD')));
+  } else if (GRAPH_STATE.activeTimeSlice === 'lsass') {
+    effectiveEvents = effectiveEvents.filter(e => (e._time && e._time.includes('15:12')) || String(e.EventCode).includes('10') || (e.CommandLine && e.CommandLine.includes('lsass')));
+  } else if (GRAPH_STATE.activeTimeSlice === 'c2') {
+    effectiveEvents = effectiveEvents.filter(e => (e._time && e._time.includes('15:16')) || (e._time && e._time.includes('15:17')) || String(e.EventCode).includes('3') || (e.CommandLine && e.CommandLine.includes('beacon')));
+  }
+
+  // Categorize events
+  let maliciousCount = 0;
+  let benignCount = 0;
+
+  effectiveEvents.forEach(ev => {
+    const code = String(ev.EventCode || '').trim();
+    const cmd = `${ev.CommandLine || ''} ${ev.SourceImage || ''} ${ev.TargetImage || ''} ${ev.ScriptBlock || ''} ${ev.Description || ''}`;
+    const isThreat = code === '4625' || code === '4104' || code === 'Sysmon 10' || code === 'Sysmon 1' || code === 'Sysmon 3' ||
+      code === '10' || code === '1' || code === '3' ||
+      cmd.includes('procdump') || cmd.includes('beacon') || cmd.includes('powershell -enc') || cmd.includes('0x1fffff') || (ev.Reason && ev.Reason.includes('Compromised'));
+
+    if (isThreat) {
+      maliciousCount++;
+    } else {
+      benignCount++;
+    }
+  });
+
+  const totalCount = effectiveEvents.length;
+  const attackRatioPct = totalCount > 0 ? ((maliciousCount / totalCount) * 100).toFixed(1) : '0.0';
+
+  // Discrete 1-Minute / Stage Bins
+  const timeBuckets = [
+    { label: '14:30:00', malicious: 0, benign: 4, velocity: 4, ratio: 0, phase: 'Pre-Attack Baseline', desc: 'Routine Kerberos logons' },
+    { label: '14:31:00', malicious: 1, benign: 3, velocity: 4, ratio: 25.0, phase: 'Initial Probe', desc: '1 recon attempt detected' },
+    { label: '14:32:00', malicious: 11, benign: 1, velocity: 12, ratio: 91.7, phase: 'Password Spray Burst', desc: '10 fails + 1 logon success (Breach)' },
+    { label: '14:35:00', malicious: 0, benign: 5, velocity: 5, ratio: 0, phase: 'Dormant Window', desc: 'Attacker internal staging' },
+    { label: '15:00:00', malicious: 0, benign: 3, velocity: 3, ratio: 0, phase: 'Quiet Operation', desc: 'Background workstation heartbeats' },
+    { label: '15:10:00', malicious: 2, benign: 0, velocity: 2, ratio: 100.0, phase: 'Weaponized Macro & PS', desc: 'WINWORD.EXE & ScriptBlock 4104' },
+    { label: '15:12:00', malicious: 2, benign: 0, velocity: 2, ratio: 100.0, phase: 'LSASS Memory Dump', desc: 'procdump64.exe & lsass.dmp creation' },
+    { label: '15:16:00', malicious: 2, benign: 0, velocity: 2, ratio: 100.0, phase: 'C2 Socket Established', desc: 'beacon.exe connects to 185.220.101.5:4444' },
+    { label: '15:17:00', malicious: 1, benign: 0, velocity: 1, ratio: 100.0, phase: 'C2 Heartbeat Pulse', desc: 'Recurring +30.00s beacon interval' },
+    { label: '15:20:00', malicious: 0, benign: 4, velocity: 4, ratio: 0, phase: 'Post-Containment', desc: 'Host isolated by SOC Tier-2' }
+  ];
+
+  // If clean baseline practice log loaded, zero out malicious values
+  if (GRAPH_STATE.activeDatasetKey === '5_baseline' || (maliciousCount === 0 && benignCount > 0)) {
+    timeBuckets.forEach(b => {
+      b.malicious = 0;
+      b.ratio = 0;
+    });
+  }
+
+  // Calculate Cumulative Volumes
+  let cumMalicious = 0;
+  let cumBenign = 0;
+  timeBuckets.forEach(b => {
+    cumMalicious += b.malicious;
+    cumBenign += b.benign;
+    b.cumMalicious = cumMalicious;
+    b.cumBenign = cumBenign;
+    b.cumTotal = cumMalicious + cumBenign;
+    b.cumRatio = b.cumTotal > 0 ? parseFloat(((cumMalicious / b.cumTotal) * 100).toFixed(1)) : 0;
+  });
+
+  // Categories & Long-Label MITRE Techniques (For Bar Chart & Breakdown Table)
+  const categoryData = [
+    {
+      category: 'T1110.003 - External Password Spraying',
+      code: 'Event 4625 / 4624',
+      total: 12,
+      malicious: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0 : 11,
+      benign: 1,
+      ratio: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0.0 : 91.7,
+      anomaly: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 'Normal' : 'Critical',
+      target: 'DC01 (8 Target Users)',
+      action: 'Spray Block'
+    },
+    {
+      category: 'T1204.002 - Weaponized Office Macro LOLBin',
+      code: 'Sysmon 1 / Winword',
+      total: 1,
+      malicious: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0 : 1,
+      benign: 0,
+      ratio: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0.0 : 100.0,
+      anomaly: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 'Normal' : 'Critical',
+      target: 'FIN-WS-09 (cjohnson)',
+      action: 'Macro Kill'
+    },
+    {
+      category: 'T1059.001 - PowerShell Reflection & Remote Cradle',
+      code: 'PowerShell 4104',
+      total: 1,
+      malicious: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0 : 1,
+      benign: 0,
+      ratio: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0.0 : 100.0,
+      anomaly: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 'Normal' : 'High',
+      target: 'FIN-WS-09 (cjohnson)',
+      action: 'De-obfuscate'
+    },
+    {
+      category: 'T1003.001 - LSASS Memory Access & Dumping',
+      code: 'Sysmon 10 / 11',
+      total: 2,
+      malicious: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0 : 2,
+      benign: 0,
+      ratio: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0.0 : 100.0,
+      anomaly: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 'Normal' : 'Critical',
+      target: 'lsass.exe (PID 648)',
+      action: 'Krbtgt Reset'
+    },
+    {
+      category: 'T1071.001 - Outbound C2 Network Beaconing',
+      code: 'Sysmon 3 / Zeek Conn',
+      total: 3,
+      malicious: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0 : 3,
+      benign: 0,
+      ratio: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 0.0 : 100.0,
+      anomaly: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 'Normal' : 'Critical',
+      target: '185.220.101.5:4444',
+      action: 'Sever Socket'
+    },
+    {
+      category: 'Audit / Standard User Domain Logons',
+      code: 'WinEvent 4624 Audit',
+      total: 16,
+      malicious: 0,
+      benign: 16,
+      ratio: 0.0,
+      anomaly: 'Clean Baseline',
+      target: 'Domain Workstations',
+      action: 'Audit Log'
+    }
+  ];
+
+  // 2D & 3D Correlation Entities (For Scatter & Bubble Charts)
+  const entityPoints = [
+    {
+      name: '198.51.100.45 (Kali Attacker)',
+      type: 'External IP',
+      x: 16.5, // Velocity (events/min)
+      y: 92,   // Anomaly Score (0-100)
+      r: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 6 : 28, // Radius (Attack Volume)
+      color: '#F87171',
+      category: 'Credential Access',
+      attackRatio: 91.7,
+      totalEvents: 12,
+      maliciousCount: 11,
+      details: 'Repeated password spray targeting 8 user accounts in 40 seconds.'
+    },
+    {
+      name: 'procdump64.exe (PID 9812)',
+      type: 'Malicious LOLBin',
+      x: 8.0,
+      y: 98,
+      r: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 5 : 22,
+      color: '#F87171',
+      category: 'Credential Access',
+      attackRatio: 100.0,
+      totalEvents: 2,
+      maliciousCount: 2,
+      details: 'Full memory handle (0x1fffff) opened to lsass.exe.'
+    },
+    {
+      name: 'beacon.exe (Port 4444)',
+      type: 'C2 Agent',
+      x: 6.0,
+      y: 95,
+      r: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 5 : 20,
+      color: '#B794F4',
+      category: 'Command & Control',
+      attackRatio: 100.0,
+      totalEvents: 3,
+      maliciousCount: 3,
+      details: 'Exact 30.00s interval heartbeat with 0.00s jitter to 185.220.101.5.'
+    },
+    {
+      name: 'powershell.exe (ScriptBlock 4104)',
+      type: 'De-obfuscator',
+      x: 4.5,
+      y: 88,
+      r: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 5 : 18,
+      color: '#FBBF24',
+      category: 'Execution',
+      attackRatio: 100.0,
+      totalEvents: 1,
+      maliciousCount: 1,
+      details: 'In-memory Base64 de-obfuscation and Net.WebClient download cradle.'
+    },
+    {
+      name: 'WINWORD.EXE (PID 8944)',
+      type: 'Phishing Macro Host',
+      x: 3.0,
+      y: 82,
+      r: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 5 : 16,
+      color: '#FBBF24',
+      category: 'Initial Execution',
+      attackRatio: 100.0,
+      totalEvents: 1,
+      maliciousCount: 1,
+      details: 'Office Word process spawning hidden child interpreter.'
+    },
+    {
+      name: 'FIN-WS-09 Workstation',
+      type: 'Target Endpoint',
+      x: 9.5,
+      y: 75,
+      r: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 6 : 24,
+      color: '#7CBFF1',
+      category: 'Compromised Host',
+      attackRatio: 87.5,
+      totalEvents: 8,
+      maliciousCount: 7,
+      details: 'Subject of lateral execution, credential dumping, and outbound C2.'
+    },
+    {
+      name: 'DC01.CORP.LOCAL',
+      type: 'Domain Controller',
+      x: 14.0,
+      y: 60,
+      r: 20,
+      color: '#71D98C',
+      category: 'Target Asset',
+      attackRatio: 73.3,
+      totalEvents: 15,
+      maliciousCount: 11,
+      details: 'Target of authentication spraying; protected by lockout thresholds.'
+    },
+    {
+      name: 'CORP\\cjohnson (Compromised)',
+      type: 'User Account',
+      x: 5.0,
+      y: 78,
+      r: (GRAPH_STATE.activeDatasetKey === '5_baseline') ? 5 : 19,
+      color: '#F87171',
+      category: 'Breached Identity',
+      attackRatio: 80.0,
+      totalEvents: 5,
+      maliciousCount: 4,
+      details: 'Password sprayed, macro opened, and Kerberos TGT exposed.'
+    },
+    {
+      name: 'Benign User Cluster (jsmith, mjones)',
+      type: 'Normal Users',
+      x: 2.2,
+      y: 5,
+      r: 14,
+      color: '#27D38C',
+      category: 'Benign Baseline',
+      attackRatio: 0.0,
+      totalEvents: 12,
+      maliciousCount: 0,
+      details: 'Standard interactive domain logons during business hours.'
+    },
+    {
+      name: 'Forwarder Telemetry Ingest (42 Hosts)',
+      type: 'Infrastructure',
+      x: 3.5,
+      y: 8,
+      r: 16,
+      color: '#27D38C',
+      category: 'Benign Audit',
+      attackRatio: 0.0,
+      totalEvents: 16,
+      maliciousCount: 0,
+      details: 'Universal Forwarder heartbeats and scheduled audit syncs.'
+    }
+  ];
+
+  return {
+    totalEvents: totalCount,
+    maliciousEvents: maliciousCount,
+    benignEvents: benignCount,
+    attackRatio: attackRatioPct,
+    timeBuckets: timeBuckets,
+    categories: categoryData,
+    entities: entityPoints
+  };
+}
+
+function updateAttackRatioKPIs(data) {
+  const kpiRatio = document.getElementById('graph-kpi-ratio');
+  const kpiRatioSub = document.getElementById('graph-kpi-ratio-sub');
+  const kpiVelocity = document.getElementById('graph-kpi-velocity');
+  const kpiPeakRatio = document.getElementById('graph-kpi-peak-ratio');
+  const kpiBreach = document.getElementById('graph-kpi-breach-ratio');
+
+  // Executive Overview Radar Sync
+  const overRatioBadge = document.getElementById('overview-ratio-badge');
+  const overTotal = document.getElementById('overview-total-events');
+  const overAttack = document.getElementById('overview-attack-events');
+  const overBenign = document.getElementById('overview-benign-events');
+  const overPeakSpike = document.getElementById('overview-peak-spike');
+
+  if (kpiRatio) kpiRatio.textContent = `${data.attackRatio}%`;
+  if (kpiRatioSub) kpiRatioSub.textContent = `${data.maliciousEvents} Malicious / ${data.totalEvents} Ingested Events`;
+  if (kpiVelocity) kpiVelocity.textContent = `${data.maliciousEvents > 0 ? '11 Events / 40s' : '0 EPS (Clean)'}`;
+  if (kpiPeakRatio) kpiPeakRatio.textContent = `${data.maliciousEvents > 0 ? '91.7%' : '0.0%'}`;
+  if (kpiBreach) kpiBreach.textContent = `${data.maliciousEvents > 0 ? '12.5%' : '0.0%'}`;
+
+  if (overRatioBadge) {
+    overRatioBadge.textContent = `Attack Ratio: ${data.attackRatio}%`;
+    overRatioBadge.className = `panel-badge ${parseFloat(data.attackRatio) > 20 ? 'highlight-red' : parseFloat(data.attackRatio) > 0 ? 'highlight-amber' : 'highlight-green'}`;
+  }
+  if (overTotal) overTotal.textContent = `${data.totalEvents} Events`;
+  if (overAttack) overAttack.textContent = `${data.maliciousEvents} Threats`;
+  if (overBenign) overBenign.textContent = `${data.benignEvents} Normal`;
+  if (overPeakSpike) overPeakSpike.textContent = `${data.maliciousEvents > 0 ? '91.7% @ 14:32 UTC' : 'None (0% Baseline)'}`;
+}
+
+// Master Render Dispatcher for all 6 Graph Types
+function renderAttackRatioVisualizer(pulseOffset = 0) {
+  const container = document.getElementById('graph-canvas-container');
+  const canvas = document.getElementById('attack-ratio-canvas');
+  const svg = document.getElementById('attack-ratio-svg');
+  if (!container || !canvas || !svg) return;
+
+  const chartType = GRAPH_STATE.activeChartType || 'line';
+  const descInfo = GRAPH_DESCRIPTIONS[chartType] || GRAPH_DESCRIPTIONS.line;
+
+  // Update Description Card
+  const descIcon = document.getElementById('graph-desc-icon');
+  const descTitle = document.getElementById('graph-desc-title');
+  const descText = document.getElementById('graph-desc-text');
+  if (descIcon) descIcon.textContent = descInfo.icon;
+  if (descTitle) descTitle.textContent = descInfo.title;
+  if (descText) descText.textContent = descInfo.text;
+
+  // Calculate Data
+  const data = calculateAttackRatioData(pulseOffset);
+  GRAPH_STATE.cachedRenderData = data;
+  updateAttackRatioKPIs(data);
+
+  // High-DPI Canvas setup
+  const rect = container.getBoundingClientRect();
+  const width = Math.max(rect.width, 320);
+  const height = 420;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+
+  const ctx = canvas.getContext('2d');
+  ctx.resetTransform();
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, width, height);
+  svg.innerHTML = ''; // Clear vector overlays
+
+  // Padding bounds
+  const padding = {
+    top: 35,
+    right: chartType === 'bar' ? 60 : 50,
+    bottom: chartType === 'bar' ? 35 : 45,
+    left: chartType === 'bar' ? 240 : 65
+  };
+
+  // Route to specialized chart renderer
+  switch (chartType) {
+    case 'line':
+      renderLineChart(ctx, svg, width, height, padding, data, false);
+      break;
+    case 'area':
+      renderLineChart(ctx, svg, width, height, padding, data, true);
+      break;
+    case 'column':
+      renderColumnChart(ctx, svg, width, height, padding, data);
+      break;
+    case 'bar':
+      renderHorizontalBarChart(ctx, svg, width, height, padding, data);
+      break;
+    case 'scatter':
+      renderScatterChart(ctx, svg, width, height, padding, data);
+      break;
+    case 'bubble':
+      renderBubbleChart(ctx, svg, width, height, padding, data);
+      break;
+    default:
+      renderLineChart(ctx, svg, width, height, padding, data, false);
+  }
+
+  // Update Dynamic Legend & Correlated Breakdown Table
+  renderGraphLegend(chartType, data);
+  renderAttackRatioTable(data);
+}
+
+// 1 & 2. Line Chart & Area Chart Renderer
+function renderLineChart(ctx, svg, width, height, pad, data, isArea = false) {
+  const buckets = data.timeBuckets;
+  const chartW = width - pad.left - pad.right;
+  const chartH = height - pad.top - pad.bottom;
+  const isLight = document.body.classList.contains('theme-clean-light');
+
+  const textColor = isLight ? '#1B3561' : '#7CBFF1';
+  const gridColor = isLight ? 'rgba(0, 28, 50, 0.08)' : 'rgba(124, 191, 241, 0.12)';
+  const ratioColor = isLight ? '#0284C7' : '#7CBFF1';
+  const attackColor = isLight ? '#DC2626' : '#F87171';
+  const benignColor = isLight ? '#059669' : '#27D38C';
+
+  // Draw Gridlines & Y-Axis (0% to 100%)
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  ctx.fillStyle = textColor;
+  ctx.font = '11px JetBrains Mono, monospace';
+  ctx.textAlign = 'right';
+
+  const yTicks = [0, 25, 50, 75, 100];
+  yTicks.forEach(tick => {
+    const y = pad.top + chartH - (tick / 100) * chartH;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(width - pad.right, y);
+    ctx.stroke();
+    ctx.fillText(`${tick}%`, pad.left - 10, y + 4);
+  });
+
+  // Draw X-Axis Ticks
+  ctx.textAlign = 'center';
+  const points = buckets.map((b, i) => {
+    const x = pad.left + (i / (buckets.length - 1)) * chartW;
+    const yRatio = pad.top + chartH - (b.ratio / 100) * chartH;
+    const yAttackVol = pad.top + chartH - (Math.min(b.malicious, 12) / 12) * chartH;
+    const yBenignVol = pad.top + chartH - (Math.min(b.benign, 12) / 12) * chartH;
+    return { ...b, x, yRatio, yAttackVol, yBenignVol, index: i };
+  });
+
+  points.forEach((p, i) => {
+    ctx.fillText(p.label.slice(0, 5), p.x, height - pad.bottom + 18);
+  });
+
+  // If Area Chart: Fill Area Under Curves
+  if (isArea) {
+    // 1. Benign Volume Area
+    const benignGrad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+    benignGrad.addColorStop(0, 'rgba(39, 211, 140, 0.35)');
+    benignGrad.addColorStop(1, 'rgba(39, 211, 140, 0.02)');
+
+    ctx.fillStyle = benignGrad;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, pad.top + chartH);
+    points.forEach(p => ctx.lineTo(p.x, p.yBenignVol));
+    ctx.lineTo(points[points.length - 1].x, pad.top + chartH);
+    ctx.closePath();
+    ctx.fill();
+
+    // 2. Attack Volume Layered Area
+    const attackGrad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+    attackGrad.addColorStop(0, 'rgba(248, 113, 113, 0.55)');
+    attackGrad.addColorStop(1, 'rgba(248, 113, 113, 0.05)');
+
+    ctx.fillStyle = attackGrad;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, pad.top + chartH);
+    points.forEach(p => ctx.lineTo(p.x, p.yAttackVol));
+    ctx.lineTo(points[points.length - 1].x, pad.top + chartH);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Draw Attack Ratio Spline (Line)
+  ctx.strokeStyle = ratioColor;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = ratioColor;
+  ctx.shadowBlur = isLight ? 0 : 10;
+  ctx.beginPath();
+  points.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(p.x, p.yRatio);
+    else {
+      const prev = points[i - 1];
+      const cpX = (prev.x + p.x) / 2;
+      ctx.bezierCurveTo(cpX, prev.yRatio, cpX, p.yRatio, p.x, p.yRatio);
+    }
+  });
+  ctx.stroke();
+  ctx.shadowBlur = 0; // reset
+
+  // Draw Attack Events Volume Line
+  ctx.strokeStyle = attackColor;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  points.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(p.x, p.yAttackVol);
+    else ctx.lineTo(p.x, p.yAttackVol);
+  });
+  ctx.stroke();
+  ctx.setLineDash([]); // reset
+
+  // Render Interactive Dots via SVG overlay
+  points.forEach(p => {
+    const isPeak = p.ratio > 80;
+    const dotColor = isPeak ? '#F87171' : p.ratio > 0 ? '#FBBF24' : '#27D38C';
+
+    if (isPeak) {
+      const pulseCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      pulseCircle.setAttribute('cx', p.x);
+      pulseCircle.setAttribute('cy', p.yRatio);
+      pulseCircle.setAttribute('r', '12');
+      pulseCircle.setAttribute('fill', 'none');
+      pulseCircle.setAttribute('stroke', '#F87171');
+      pulseCircle.setAttribute('stroke-width', '1.5');
+      pulseCircle.setAttribute('opacity', '0.6');
+      svg.appendChild(pulseCircle);
+    }
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', p.x);
+    circle.setAttribute('cy', p.yRatio);
+    circle.setAttribute('r', isPeak ? '6' : '4.5');
+    circle.setAttribute('fill', dotColor);
+    circle.setAttribute('stroke', isLight ? '#FFFFFF' : '#001C32');
+    circle.setAttribute('stroke-width', '2');
+    circle.setAttribute('style', 'cursor: pointer; transition: transform 0.15s ease;');
+    circle.setAttribute('data-point-type', 'timeline');
+    circle.setAttribute('data-index', p.index);
+    svg.appendChild(circle);
+  });
+
+  GRAPH_STATE.activePoints = points;
+}
+
+// 3. Column Chart Renderer (Vertical Bars with Malicious vs Benign)
+function renderColumnChart(ctx, svg, width, height, pad, data) {
+  const buckets = data.timeBuckets;
+  const chartW = width - pad.left - pad.right;
+  const chartH = height - pad.top - pad.bottom;
+  const isLight = document.body.classList.contains('theme-clean-light');
+
+  const textColor = isLight ? '#1B3561' : '#7CBFF1';
+  const gridColor = isLight ? 'rgba(0, 28, 50, 0.08)' : 'rgba(124, 191, 241, 0.12)';
+  const maxEvents = 14;
+
+  // Gridlines & Y-Axis (Event Count 0 to 14)
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  ctx.fillStyle = textColor;
+  ctx.font = '11px JetBrains Mono, monospace';
+  ctx.textAlign = 'right';
+
+  [0, 3, 6, 9, 12].forEach(val => {
+    const y = pad.top + chartH - (val / maxEvents) * chartH;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(width - pad.right, y);
+    ctx.stroke();
+    ctx.fillText(`${val} ev`, pad.left - 10, y + 4);
+  });
+
+  const slotW = chartW / buckets.length;
+  const barW = Math.max(Math.min(slotW * 0.35, 20), 8);
+
+  const columnPoints = [];
+
+  buckets.forEach((b, i) => {
+    const centerX = pad.left + i * slotW + slotW / 2;
+    const xMal = centerX - barW - 2;
+    const xBen = centerX + 2;
+
+    const hMal = (b.malicious / maxEvents) * chartH;
+    const hBen = (b.benign / maxEvents) * chartH;
+
+    const yMal = pad.top + chartH - hMal;
+    const yBen = pad.top + chartH - hBen;
+
+    // Draw Benign Bar (Mint Green)
+    if (hBen > 0) {
+      const gradBen = ctx.createLinearGradient(0, yBen, 0, pad.top + chartH);
+      gradBen.addColorStop(0, '#27D38C');
+      gradBen.addColorStop(1, 'rgba(39, 211, 140, 0.3)');
+      ctx.fillStyle = gradBen;
+      roundRect(ctx, xBen, yBen, barW, hBen, 3);
+      ctx.fill();
+    }
+
+    // Draw Malicious Bar (Cyber Red)
+    if (hMal > 0) {
+      const gradMal = ctx.createLinearGradient(0, yMal, 0, pad.top + chartH);
+      gradMal.addColorStop(0, '#F87171');
+      gradMal.addColorStop(1, 'rgba(248, 113, 113, 0.3)');
+      ctx.fillStyle = gradMal;
+      roundRect(ctx, xMal, yMal, barW, hMal, 3);
+      ctx.fill();
+    }
+
+    // X-Axis Time Label
+    ctx.fillStyle = textColor;
+    ctx.font = '10px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(b.label.slice(0, 5), centerX, height - pad.bottom + 18);
+
+    // Ratio badge above column if attack > 0
+    if (b.ratio > 0) {
+      const badgeY = Math.min(yMal, yBen) - 8;
+      ctx.fillStyle = b.ratio > 80 ? '#F87171' : '#FBBF24';
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
+      ctx.fillText(`${b.ratio}%`, centerX, badgeY);
+    }
+
+    columnPoints.push({
+      ...b,
+      x: centerX,
+      y: Math.min(yMal, yBen),
+      index: i,
+      box: { left: xMal - 4, right: xBen + barW + 4, top: pad.top, bottom: pad.top + chartH }
+    });
+  });
+
+  GRAPH_STATE.activePoints = columnPoints;
+}
+
+// 4. Horizontal Bar Chart Renderer (MITRE Techniques & Long Label Entities)
+function renderHorizontalBarChart(ctx, svg, width, height, pad, data) {
+  const categories = data.categories;
+  const chartW = width - pad.left - pad.right;
+  const chartH = height - pad.top - pad.bottom;
+  const isLight = document.body.classList.contains('theme-clean-light');
+
+  const textColor = isLight ? '#1B3561' : '#EAFBEE';
+  const textDim = isLight ? '#4A6B82' : '#7CBFF1';
+  const gridColor = isLight ? 'rgba(0, 28, 50, 0.08)' : 'rgba(124, 191, 241, 0.12)';
+  const rowH = chartH / categories.length;
+  const barH = Math.min(rowH * 0.55, 24);
+
+  // X-Axis Gridlines (Attack Ratio 0% to 100%)
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  ctx.fillStyle = textDim;
+  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.textAlign = 'center';
+
+  [0, 25, 50, 75, 100].forEach(pct => {
+    const x = pad.left + (pct / 100) * chartW;
+    ctx.beginPath();
+    ctx.moveTo(x, pad.top);
+    ctx.lineTo(x, pad.top + chartH);
+    ctx.stroke();
+    ctx.fillText(`${pct}%`, x, height - pad.bottom + 18);
+  });
+
+  const barPoints = [];
+
+  categories.forEach((cat, idx) => {
+    const y = pad.top + idx * rowH + (rowH - barH) / 2;
+    const barWidth = Math.max((cat.ratio / 100) * chartW, cat.ratio > 0 ? 8 : 4);
+
+    // Left Long-Label
+    ctx.fillStyle = textColor;
+    ctx.font = '500 11px Inter, sans-serif';
+    ctx.textAlign = 'right';
+
+    let labelText = cat.category;
+    if (labelText.length > 34) labelText = labelText.substring(0, 32) + '...';
+    ctx.fillText(labelText, pad.left - 15, y + barH / 2 + 4);
+
+    // Background track
+    ctx.fillStyle = isLight ? 'rgba(0, 28, 50, 0.05)' : 'rgba(255, 255, 255, 0.06)';
+    roundRect(ctx, pad.left, y, chartW, barH, 4);
+    ctx.fill();
+
+    // Foreground Bar with Gradient
+    const barGrad = ctx.createLinearGradient(pad.left, 0, pad.left + barWidth, 0);
+    if (cat.ratio > 80) {
+      barGrad.addColorStop(0, '#F87171');
+      barGrad.addColorStop(1, '#EF4444');
+    } else if (cat.ratio > 0) {
+      barGrad.addColorStop(0, '#FBBF24');
+      barGrad.addColorStop(1, '#F59E0B');
+    } else {
+      barGrad.addColorStop(0, '#27D38C');
+      barGrad.addColorStop(1, '#10B981');
+    }
+
+    ctx.fillStyle = barGrad;
+    roundRect(ctx, pad.left, y, barWidth, barH, 4);
+    ctx.fill();
+
+    // Right Percentage Value Label
+    ctx.fillStyle = cat.ratio > 80 ? '#F87171' : cat.ratio > 0 ? '#FBBF24' : '#27D38C';
+    ctx.font = 'bold 11px JetBrains Mono, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${cat.ratio}% (${cat.malicious}/${cat.total})`, pad.left + chartW + 8, y + barH / 2 + 4);
+
+    barPoints.push({
+      ...cat,
+      x: pad.left + barWidth,
+      y: y + barH / 2,
+      index: idx,
+      box: { left: pad.left, right: pad.left + chartW + 60, top: y, bottom: y + barH }
+    });
+  });
+
+  GRAPH_STATE.activePoints = barPoints;
+}
+
+// 5. Scatter Chart Renderer (Request Velocity vs Anomaly Score)
+function renderScatterChart(ctx, svg, width, height, pad, data) {
+  const entities = data.entities;
+  const chartW = width - pad.left - pad.right;
+  const chartH = height - pad.top - pad.bottom;
+  const isLight = document.body.classList.contains('theme-clean-light');
+
+  const textColor = isLight ? '#1B3561' : '#7CBFF1';
+  const gridColor = isLight ? 'rgba(0, 28, 50, 0.08)' : 'rgba(124, 191, 241, 0.12)';
+
+  const maxX = 20; // Velocity (0 to 20 events/min)
+  const maxY = 100; // Anomaly Score (0 to 100)
+
+  // Quadrant Highlight: Top Right = High Velocity + High Anomaly (Red Risk Zone)
+  const midX = pad.left + (10 / maxX) * chartW;
+  const midY = pad.top + chartH - (50 / maxY) * chartH;
+
+  ctx.fillStyle = isLight ? 'rgba(220, 38, 38, 0.06)' : 'rgba(248, 113, 113, 0.08)';
+  ctx.fillRect(midX, pad.top, width - pad.right - midX, midY - pad.top);
+
+  ctx.fillStyle = isLight ? 'rgba(5, 150, 105, 0.06)' : 'rgba(39, 211, 140, 0.05)';
+  ctx.fillRect(pad.left, midY, midX - pad.left, pad.top + chartH - midY);
+
+  // Quadrant Labels
+  ctx.font = 'bold 10px Inter, sans-serif';
+  ctx.fillStyle = isLight ? 'rgba(220, 38, 38, 0.7)' : 'rgba(248, 113, 113, 0.6)';
+  ctx.textAlign = 'right';
+  ctx.fillText('🚨 HIGH-RISK OUTLIER ZONE', width - pad.right - 12, pad.top + 20);
+
+  ctx.fillStyle = isLight ? 'rgba(5, 150, 105, 0.7)' : 'rgba(39, 211, 140, 0.6)';
+  ctx.textAlign = 'left';
+  ctx.fillText('🛡️ BENIGN BASELINE ZONE', pad.left + 12, pad.top + chartH - 12);
+
+  // Draw Gridlines & Axes
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  ctx.fillStyle = textColor;
+  ctx.font = '10px JetBrains Mono, monospace';
+
+  // Y-Axis Ticks (Anomaly Score 0 to 100)
+  ctx.textAlign = 'right';
+  [0, 25, 50, 75, 100].forEach(val => {
+    const y = pad.top + chartH - (val / maxY) * chartH;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(width - pad.right, y);
+    ctx.stroke();
+    ctx.fillText(`${val}`, pad.left - 10, y + 4);
+  });
+
+  // X-Axis Ticks (Velocity 0 to 20)
+  ctx.textAlign = 'center';
+  [0, 5, 10, 15, 20].forEach(val => {
+    const x = pad.left + (val / maxX) * chartW;
+    ctx.beginPath();
+    ctx.moveTo(x, pad.top);
+    ctx.lineTo(x, pad.top + chartH);
+    ctx.stroke();
+    ctx.fillText(`${val} ev/m`, x, height - pad.bottom + 18);
+  });
+
+  // Axis Titles
+  ctx.font = 'bold 10px Inter, sans-serif';
+  ctx.fillStyle = textColor;
+  ctx.textAlign = 'center';
+  ctx.fillText('Request Velocity (Events / Min) &rarr;', pad.left + chartW / 2, height - 10);
+
+  // Plot Scatter Points
+  const scatterPoints = entities.map((pt, i) => {
+    const cx = pad.left + (Math.min(pt.x, maxX) / maxX) * chartW;
+    const cy = pad.top + chartH - (pt.y / maxY) * chartH;
+    return { ...pt, cx, cy, x: cx, y: cy, index: i };
+  });
+
+  scatterPoints.forEach(p => {
+    // Halo ring for high anomalies
+    if (p.y >= 75) {
+      const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      halo.setAttribute('cx', p.cx);
+      halo.setAttribute('cy', p.cy);
+      halo.setAttribute('r', '14');
+      halo.setAttribute('fill', 'none');
+      halo.setAttribute('stroke', p.color);
+      halo.setAttribute('stroke-width', '1.5');
+      halo.setAttribute('opacity', '0.4');
+      svg.appendChild(halo);
+    }
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', p.cx);
+    circle.setAttribute('cy', p.cy);
+    circle.setAttribute('r', '7');
+    circle.setAttribute('fill', p.color);
+    circle.setAttribute('stroke', isLight ? '#FFFFFF' : '#001C32');
+    circle.setAttribute('stroke-width', '2');
+    circle.setAttribute('style', 'cursor: pointer;');
+    circle.setAttribute('data-point-type', 'entity');
+    circle.setAttribute('data-index', p.index);
+    svg.appendChild(circle);
+  });
+
+  GRAPH_STATE.activePoints = scatterPoints;
+}
+
+// 6. Bubble Chart Renderer (3-Variable Threat Matrix: Velocity vs Risk vs Blast Radius)
+function renderBubbleChart(ctx, svg, width, height, pad, data) {
+  const entities = data.entities;
+  const chartW = width - pad.left - pad.right;
+  const chartH = height - pad.top - pad.bottom;
+  const isLight = document.body.classList.contains('theme-clean-light');
+
+  const textColor = isLight ? '#1B3561' : '#7CBFF1';
+  const gridColor = isLight ? 'rgba(0, 28, 50, 0.08)' : 'rgba(124, 191, 241, 0.12)';
+
+  const maxX = 20;
+  const maxY = 100;
+
+  // Gridlines
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  ctx.fillStyle = textColor;
+  ctx.font = '10px JetBrains Mono, monospace';
+
+  // Y-Axis Ticks
+  ctx.textAlign = 'right';
+  [0, 25, 50, 75, 100].forEach(val => {
+    const y = pad.top + chartH - (val / maxY) * chartH;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(width - pad.right, y);
+    ctx.stroke();
+    ctx.fillText(`${val} Score`, pad.left - 10, y + 4);
+  });
+
+  // X-Axis Ticks
+  ctx.textAlign = 'center';
+  [0, 5, 10, 15, 20].forEach(val => {
+    const x = pad.left + (val / maxX) * chartW;
+    ctx.beginPath();
+    ctx.moveTo(x, pad.top);
+    ctx.lineTo(x, pad.top + chartH);
+    ctx.stroke();
+    ctx.fillText(`${val} EPS`, x, height - pad.bottom + 18);
+  });
+
+  // Plot 3D Bubble Circles
+  const bubblePoints = entities.map((pt, i) => {
+    const cx = pad.left + (Math.min(pt.x, maxX) / maxX) * chartW;
+    const cy = pad.top + chartH - (pt.y / maxY) * chartH;
+    const radius = pt.r || 14;
+    return { ...pt, cx, cy, x: cx, y: cy, radius, index: i };
+  });
+
+  // Sort so larger bubbles draw beneath smaller ones
+  bubblePoints.sort((a, b) => b.radius - a.radius);
+
+  bubblePoints.forEach(p => {
+    const bubble = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    bubble.setAttribute('cx', p.cx);
+    bubble.setAttribute('cy', p.cy);
+    bubble.setAttribute('r', p.radius);
+    bubble.setAttribute('fill', p.color);
+    bubble.setAttribute('fill-opacity', '0.45');
+    bubble.setAttribute('stroke', p.color);
+    bubble.setAttribute('stroke-width', '2');
+    bubble.setAttribute('style', 'cursor: pointer; transition: fill-opacity 0.2s ease;');
+    bubble.setAttribute('data-point-type', 'entity');
+    bubble.setAttribute('data-index', p.index);
+    svg.appendChild(bubble);
+
+    // Inner specular ring for glossy 3D feel
+    const innerDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    innerDot.setAttribute('cx', p.cx - p.radius * 0.25);
+    innerDot.setAttribute('cy', p.cy - p.radius * 0.25);
+    innerDot.setAttribute('r', Math.max(p.radius * 0.2, 2));
+    innerDot.setAttribute('fill', '#FFFFFF');
+    innerDot.setAttribute('opacity', '0.6');
+    innerDot.setAttribute('style', 'pointer-events: none;');
+    svg.appendChild(innerDot);
+
+    // Small Text Label on Large Bubbles
+    if (p.radius >= 20) {
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', p.cx);
+      text.setAttribute('y', p.cy + 3);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', isLight ? '#001C32' : '#FFFFFF');
+      text.setAttribute('font-size', '9px');
+      text.setAttribute('font-family', 'JetBrains Mono, monospace');
+      text.setAttribute('font-weight', 'bold');
+      text.setAttribute('style', 'pointer-events: none;');
+      text.textContent = `${p.attackRatio}%`;
+      svg.appendChild(text);
+    }
+  });
+
+  GRAPH_STATE.activePoints = bubblePoints;
+}
+
+// Tooltip & Crosshair Interactive Tracking
+function setupGraphInteractionEvents() {
+  const container = document.getElementById('graph-canvas-container');
+  const tooltip = document.getElementById('graph-floating-tooltip');
+  const crosshairV = document.getElementById('graph-crosshair-v');
+  const crosshairH = document.getElementById('graph-crosshair-h');
+
+  if (!container || !tooltip) return;
+
+  container.addEventListener('mousemove', (e) => {
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Crosshair update
+    if (crosshairV && crosshairH) {
+      crosshairV.style.display = 'block';
+      crosshairV.style.left = `${mouseX}px`;
+      crosshairH.style.display = 'block';
+      crosshairH.style.top = `${mouseY}px`;
+    }
+
+    const points = GRAPH_STATE.activePoints || [];
+    let nearest = null;
+    let minDistance = 45; // Max snap radius
+
+    points.forEach(p => {
+      // If point has bounding box (Column / Bar charts)
+      if (p.box) {
+        if (mouseX >= p.box.left && mouseX <= p.box.right && mouseY >= p.box.top && mouseY <= p.box.bottom) {
+          nearest = p;
+          minDistance = 0;
+        }
+      } else {
+        const dist = Math.hypot((p.cx || p.x) - mouseX, (p.cy || p.y) - mouseY);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearest = p;
+        }
+      }
+    });
+
+    if (nearest) {
+      GRAPH_STATE.hoveredItem = nearest;
+      showGraphTooltip(tooltip, nearest, mouseX, mouseY, rect.width);
+    } else {
+      GRAPH_STATE.hoveredItem = null;
+      tooltip.style.display = 'none';
+    }
+  });
+
+  container.addEventListener('mouseleave', () => {
+    if (tooltip) tooltip.style.display = 'none';
+    if (crosshairV) crosshairV.style.display = 'none';
+    if (crosshairH) crosshairH.style.display = 'none';
+  });
+}
+
+function showGraphTooltip(tooltip, item, mouseX, mouseY, containerW) {
+  tooltip.style.display = 'block';
+
+  // Prevent overflow off canvas boundaries
+  const clampX = Math.max(Math.min(mouseX, containerW - 140), 140);
+  tooltip.style.left = `${clampX}px`;
+  tooltip.style.top = `${mouseY}px`;
+
+  const isTimeline = item.phase !== undefined;
+  const isCategory = item.category !== undefined && item.code !== undefined;
+  const isEntity = item.type !== undefined;
+
+  let ratio = item.ratio !== undefined ? item.ratio : item.attackRatio || 0;
+  let ratioClass = ratio > 80 ? 'fill-ratio-critical' : ratio > 0 ? 'fill-ratio-high' : 'fill-ratio-clean';
+  let badgeColor = ratio > 80 ? 'badge-critical' : ratio > 0 ? 'badge-high' : 'badge-threat-clean';
+
+  let headerTitle = item.phase || item.category || item.name || 'Telemetry Bucket';
+  let badgeText = `${ratio}% Attack Ratio`;
+
+  let detailsHtml = '';
+
+  if (isTimeline) {
+    detailsHtml = `
+      <div class="tooltip-row">
+        <span class="tooltip-label">Timestamp Window:</span>
+        <span class="tooltip-val">${item.label} UTC</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">Malicious Threats:</span>
+        <span class="tooltip-val text-red font-bold">${item.malicious} events</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">Normal Baselines:</span>
+        <span class="tooltip-val text-green">${item.benign} events</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">Attack Context:</span>
+        <span class="tooltip-val text-dim" style="font-size: 0.68rem;">${item.desc || '-'}</span>
+      </div>
+    `;
+  } else if (isCategory) {
+    detailsHtml = `
+      <div class="tooltip-row">
+        <span class="tooltip-label">Event Protocol:</span>
+        <span class="tooltip-val text-cyan">${item.code}</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">Target Asset:</span>
+        <span class="tooltip-val text-muted">${item.target}</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">Threat Velocity:</span>
+        <span class="tooltip-val text-red font-bold">${item.malicious} of ${item.total} Events</span>
+      </div>
+    `;
+  } else if (isEntity) {
+    detailsHtml = `
+      <div class="tooltip-row">
+        <span class="tooltip-label">Entity Classification:</span>
+        <span class="tooltip-val text-cyan">${item.type}</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">Event Velocity:</span>
+        <span class="tooltip-val">${item.x} events/min</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">Anomaly / Risk Score:</span>
+        <span class="tooltip-val font-bold ${item.y >= 75 ? 'text-red' : 'text-green'}">${item.y} / 100</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">Forensic Context:</span>
+        <span class="tooltip-val text-dim" style="font-size: 0.68rem;">${item.details}</span>
+      </div>
+    `;
+  }
+
+  tooltip.innerHTML = `
+    <div class="tooltip-header">
+      <span class="tooltip-title">${escapeHtml(headerTitle)}</span>
+      <span class="badge-severity ${badgeColor}">${escapeHtml(badgeText)}</span>
+    </div>
+    ${detailsHtml}
+    <div class="tooltip-ratio-bar-wrap">
+      <div class="tooltip-ratio-label">
+        <span class="text-dim">Attack Concentration:</span>
+        <span class="font-mono font-bold">${ratio}%</span>
+      </div>
+      <div class="ratio-meter-bg">
+        <div class="ratio-meter-fill ${ratioClass}" style="width: ${ratio}%;"></div>
+      </div>
+    </div>
+  `;
+}
+
+// Render Graph Legend Footer
+function renderGraphLegend(chartType, data) {
+  const legendFooter = document.getElementById('graph-legend-footer');
+  if (!legendFooter) return;
+
+  let legendHtml = '';
+
+  if (chartType === 'line' || chartType === 'area') {
+    legendHtml = `
+      <div class="legend-items-list">
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: var(--accent-cyan);"></span>
+          <span>Attack Ratio % (Spline)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: var(--accent-red);"></span>
+          <span>Threat Volume (Events)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: var(--accent-green);"></span>
+          <span>Normal Baseline Traffic</span>
+        </div>
+      </div>
+      <div class="legend-stats-summary">
+        <span>Active Ratio: <strong>${data.attackRatio}%</strong> &bull; Total: <strong>${data.totalEvents} events</strong></span>
+      </div>
+    `;
+  } else if (chartType === 'column') {
+    legendHtml = `
+      <div class="legend-items-list">
+        <div class="legend-item">
+          <span class="legend-color-box" style="background: var(--accent-red);"></span>
+          <span>Malicious Threats (Bar)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-box" style="background: var(--accent-green);"></span>
+          <span>Normal Baselines (Bar)</span>
+        </div>
+        <div class="legend-item">
+          <span class="font-bold text-amber">91.7%</span>
+          <span>Ratio Indicator Label</span>
+        </div>
+      </div>
+      <div class="legend-stats-summary">
+        <span>Bin Interval: <strong>1-Minute Sliding Windows</strong></span>
+      </div>
+    `;
+  } else if (chartType === 'bar') {
+    legendHtml = `
+      <div class="legend-items-list">
+        <div class="legend-item">
+          <span class="legend-color-box" style="background: var(--accent-red);"></span>
+          <span>Critical Threat (&gt;80% Ratio)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-box" style="background: var(--accent-amber);"></span>
+          <span>Medium-High Vector (&gt;0% Ratio)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-box" style="background: var(--accent-green);"></span>
+          <span>Benign Audit Baseline (0% Ratio)</span>
+        </div>
+      </div>
+      <div class="legend-stats-summary">
+        <span>Alignment: <strong>MITRE ATT&CK Matrix v14</strong></span>
+      </div>
+    `;
+  } else if (chartType === 'scatter' || chartType === 'bubble') {
+    legendHtml = `
+      <div class="legend-items-list">
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: #F87171;"></span>
+          <span>Credential Access & Dump</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: #FBBF24;"></span>
+          <span>Execution & Macro LOLBins</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: #B794F4;"></span>
+          <span>C2 Network Beacon</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: #27D38C;"></span>
+          <span>Normal Baseline Cluster</span>
+        </div>
+      </div>
+      <div class="legend-stats-summary">
+        <span>Outlier Threshold: <strong>Z-Score &ge; 2.5 (High Velocity + High Anomaly)</strong></span>
+      </div>
+    `;
+  }
+
+  legendFooter.innerHTML = legendHtml;
+}
+
+// Render Correlated Breakdown & Outlier Intelligence Table
+function renderAttackRatioTable(data) {
+  const tbody = document.getElementById('attack-ratio-table-body');
+  const countLabel = document.getElementById('graph-table-count');
+  if (!tbody) return;
+
+  const categories = data.categories || [];
+  if (countLabel) {
+    countLabel.textContent = `Showing ${categories.length} correlated threat clusters and anomaly ratios (${data.totalEvents} total events in memory)`;
+  }
+
+  tbody.innerHTML = categories.map((cat, idx) => {
+    const ratioNum = parseFloat(cat.ratio);
+    const ratioFillClass = ratioNum > 80 ? 'fill-ratio-critical' : ratioNum > 0 ? 'fill-ratio-high' : 'fill-ratio-clean';
+    const outlierBadgeClass = cat.anomaly === 'Critical' ? 'badge-outlier-high' : cat.anomaly === 'High' ? 'badge-outlier-med' : 'badge-outlier-clean';
+
+    return `
+      <tr>
+        <td>
+          <strong>${escapeHtml(cat.category)}</strong>
+          <div class="text-dim font-mono" style="font-size: 0.7rem; margin-top: 0.15rem;">Target: ${escapeHtml(cat.target)}</div>
+        </td>
+        <td><code class="font-mono text-cyan">${escapeHtml(cat.code)}</code></td>
+        <td class="font-mono font-bold">${cat.total}</td>
+        <td class="font-mono text-red font-bold">${cat.malicious}</td>
+        <td class="font-mono text-green">${cat.benign}</td>
+        <td>
+          <div class="ratio-cell-container">
+            <div class="ratio-meter-bg">
+              <div class="ratio-meter-fill ${ratioFillClass}" style="width: ${cat.ratio}%;"></div>
+            </div>
+            <span class="ratio-percent-label ${ratioNum > 0 ? 'text-red' : 'text-green'}">${cat.ratio}%</span>
+          </div>
+        </td>
+        <td>
+          <span class="${outlierBadgeClass}">${escapeHtml(cat.anomaly)}</span>
+        </td>
+        <td>
+          <div style="display: flex; gap: 0.35rem;">
+            <button class="btn btn-sm btn-outline-cyan" onclick="pivotGraphToTriage('${escapeHtml(cat.category)}')" title="Investigate in Alert Triage">Triage &rarr;</button>
+            <button class="btn btn-sm btn-outline-green" onclick="pivotGraphToSpl('${escapeHtml(cat.code)}')" title="Inspect with live SPL query">SPL</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// 1-Click Pivot Helpers from Graph Table
+window.pivotGraphToTriage = function(categoryName) {
+  switchTab('alert-triage-queue');
+  if (categoryName.includes('Spray')) selectAlert('ALT-03');
+  else if (categoryName.includes('Macro') || categoryName.includes('PowerShell')) selectAlert('ALT-02');
+  else if (categoryName.includes('LSASS')) selectAlert('ALT-01');
+  else if (categoryName.includes('Beacon') || categoryName.includes('C2')) selectAlert('ALT-04');
+  else selectAlert('ALT-01');
+  showToast(`Pivoted from Attack Ratio Visualizer to Triage for: ${categoryName}`);
+};
+
+window.pivotGraphToSpl = function(eventCode) {
+  switchTab('spl-search-engine');
+  const queryInput = document.getElementById('spl-query-input');
+  if (eventCode.includes('4625') && queryInput) {
+    queryInput.value = SPL_PRESETS.bruteforce;
+    executeSplQuery(queryInput.value);
+  } else if (eventCode.includes('Sysmon 10') && queryInput) {
+    queryInput.value = SPL_PRESETS.lsass;
+    executeSplQuery(queryInput.value);
+  } else if (eventCode.includes('3') && queryInput) {
+    queryInput.value = SPL_PRESETS.beacon;
+    executeSplQuery(queryInput.value);
+  }
+  showToast(`Loaded SPL correlation query for ${eventCode}`);
+};
+
+// Canvas Helper: Rounded Rectangle
+function roundRect(ctx, x, y, width, height, radius) {
+  if (width < 2 * radius) radius = width / 2;
+  if (height < 2 * radius) radius = height / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
+}
+

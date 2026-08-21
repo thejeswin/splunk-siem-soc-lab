@@ -99,6 +99,11 @@
 
       <div class="nav-section-title">DETECTION DASHBOARDS</div>
       <ul class="nav-menu">
+        <li class="nav-item" data-tab="attack-ratio-visualizer" id="nav-attack-ratio">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/><circle cx="19" cy="9" r="2"/></svg>
+          <span>Attack Ratio & Graphs</span>
+          <span class="badge-pill pulse-pill" style="background: rgba(39, 211, 140, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green);">6 CHARTS</span>
+        </li>
         <li class="nav-item" data-tab="brute-force-dashboard" id="nav-brute-force">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           <span>4625 Brute Force & Spray</span>
@@ -182,34 +187,66 @@
           <div class="role-focus-message" id="role-focus-message">
             <div class="focus-icon">💡</div>
             <div class="focus-body" id="role-focus-text">
-              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem;">
-                  <span style="font-size: 0.86rem; color: #ffffff; font-weight: 700;">👔 Recruiter & Hiring Manager Focused Briefing:</span>
-                  <span class="badge-tag highlight-green">Key Metric: -35.2% Alert Noise Reduction</span>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.6rem; margin-top: 0.2rem;">
-                  <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-                    <strong class="text-cyan" style="font-size: 0.76rem; display: block;">1. Measurable Business Impact</strong>
-                    <span style="font-size: 0.72rem; color: var(--text-muted);">Suppressed 500 noise alerts/week saving ~15 engineering hours/week.</span>
+              <div class="briefing-wrap">
+                <div class="briefing-header">
+                  <div class="briefing-title-group">
+                    <span class="briefing-title">👔 Recruiter & Hiring Manager Focused Briefing</span>
+                    <span class="briefing-subtitle">Key assessment areas: SIEM ROI, noise reduction, and engineering leadership</span>
                   </div>
-                  <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-                    <strong class="text-green" style="font-size: 0.76rem; display: block;">2. Triage Speed Acceleration</strong>
-                    <span style="font-size: 0.72rem; color: var(--text-muted);">Cut Mean Time to Triage (MTTT) from 14.2 min down to 4.1 min.</span>
-                  </div>
-                  <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-                    <strong class="text-mint" style="font-size: 0.76rem; display: block;">3. SIEM Technical Depth</strong>
-                    <span style="font-size: 0.72rem; color: var(--text-muted);">Splunk Enterprise ES, Sigma YAML rules, and Sysmon XML deployments.</span>
-                  </div>
-                  <div style="background: rgba(8, 34, 60, 0.6); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color);">
-                    <strong class="text-amber" style="font-size: 0.76rem; display: block;">4. Industry Frameworks</strong>
-                    <span style="font-size: 0.72rem; color: var(--text-muted);">Full alignment with MITRE ATT&CK Matrix v14 & NIST 800-61 playbooks.</span>
+                  <div class="briefing-badges">
+                    <span class="badge-tag highlight-green">Key Metric: -35.2% Alert Noise Reduction</span>
+                    <span class="badge-tag highlight-cyan">ROI: ~15 Eng Hrs/Wk Saved</span>
                   </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; font-size: 0.72rem; color: var(--text-dim); flex-wrap: wrap;">
-                  <span>Recommended Tabs to Review:</span>
-                  <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-dashboard').click()">Executive Overview</button>
-                  <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-tuning').click()">FP Tuning Sandbox</button>
-                  <a href="reports/Project_Architecture_and_Guide_Printable.html" target="_blank" class="btn btn-sm btn-primary">Open Architecture PDF</a>
+                
+                <div class="briefing-grid">
+                  <div class="briefing-card">
+                    <div class="briefing-card-head">
+                      <strong class="briefing-card-title text-cyan">1. Measurable Business Impact</strong>
+                      <span class="briefing-card-pill">ROI</span>
+                    </div>
+                    <p class="briefing-card-desc">Suppressed 500 noise alerts/week saving ~15 engineering hours/week with zero missed true positives.</p>
+                    <span class="card-pill-tag text-cyan">+35.2% Noise Cut</span>
+                  </div>
+                  
+                  <div class="briefing-card">
+                    <div class="briefing-card-head">
+                      <strong class="briefing-card-title text-green">2. Triage Speed Acceleration</strong>
+                      <span class="briefing-card-pill">MTTT</span>
+                    </div>
+                    <p class="briefing-card-desc">Cut Mean Time to Triage (MTTT) from 14.2 min down to 4.1 min via automated playbooks.</p>
+                    <span class="card-pill-tag text-green">3.4x Faster MTTT</span>
+                  </div>
+                  
+                  <div class="briefing-card">
+                    <div class="briefing-card-head">
+                      <strong class="briefing-card-title text-mint">3. SIEM Technical Depth</strong>
+                      <span class="briefing-card-pill">Stack</span>
+                    </div>
+                    <p class="briefing-card-desc">Splunk Enterprise ES, Sigma YAML rules, and Sysmon XML endpoint telemetry deployments.</p>
+                    <span class="card-pill-tag text-mint">Splunk ES + Sysmon</span>
+                  </div>
+                  
+                  <div class="briefing-card">
+                    <div class="briefing-card-head">
+                      <strong class="briefing-card-title text-amber">4. Industry Frameworks</strong>
+                      <span class="briefing-card-pill">Standard</span>
+                    </div>
+                    <p class="briefing-card-desc">Full bidirectional alignment with MITRE ATT&CK Matrix v14 and NIST 800-61 playbooks.</p>
+                    <span class="card-pill-tag text-amber">MITRE & NIST Aligned</span>
+                  </div>
+                </div>
+                
+                <div class="briefing-footer">
+                  <div class="briefing-footer-nav">
+                    <span class="briefing-nav-label">Recommended Tabs:</span>
+                    <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-dashboard').click()">📊 Executive Overview</button>
+                    <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-tuning').click()">⚙️ FP Tuning Sandbox</button>
+                    <a href="reports/Project_Architecture_and_Guide_Printable.html" target="_blank" class="btn btn-sm btn-primary">📄 Open Architecture PDF</a>
+                  </div>
+                  <div class="briefing-footer-meta">
+                    <span>🎯 <strong>Goal:</strong> Evaluate SIEM tuning ROI, MTTT gains, and engineering rigor</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -294,6 +331,44 @@
               <button class="btn btn-primary" id="btn-inspect-killchain">Inspect Process Kill Chain &rarr;</button>
               <button class="btn btn-secondary" id="btn-view-alerts">View Triage Queue</button>
               <button class="btn btn-outline" id="btn-open-playbook">Open NIST Playbook</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attack Ratio & Telemetry Threat Velocity Snapshot -->
+        <div class="glass-panel mb-4">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/><circle cx="19" cy="9" r="2"/></svg>
+              <span>Attack Ratio & Threat Analytics Radar (6 Visualizer Modes)</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+              <span class="panel-badge highlight-red" id="overview-ratio-badge">Attack Ratio: 38.5%</span>
+              <button class="btn btn-sm btn-outline-cyan" onclick="document.getElementById('nav-attack-ratio').click()">
+                <span>Open 6-Chart Studio &rarr;</span>
+              </button>
+            </div>
+          </div>
+          <div class="overview-ratio-strip">
+            <div class="ratio-stat-item">
+              <span class="ratio-stat-label">Total Ingested Events:</span>
+              <span class="ratio-stat-val font-mono text-cyan" id="overview-total-events">26 Events</span>
+            </div>
+            <div class="ratio-stat-item">
+              <span class="ratio-stat-label">Malicious Threats:</span>
+              <span class="ratio-stat-val font-mono text-red" id="overview-attack-events">10 Events</span>
+            </div>
+            <div class="ratio-stat-item">
+              <span class="ratio-stat-label">Normal Baselines:</span>
+              <span class="ratio-stat-val font-mono text-green" id="overview-benign-events">16 Events</span>
+            </div>
+            <div class="ratio-stat-item">
+              <span class="ratio-stat-label">Peak Malicious Spike:</span>
+              <span class="ratio-stat-val font-mono text-amber" id="overview-peak-spike">91.7% @ 14:32 UTC</span>
+            </div>
+            <div class="ratio-stat-item">
+              <span class="ratio-stat-label">Visualizer Modes:</span>
+              <span class="ratio-stat-val text-mint font-bold">Line &bull; Area &bull; Column &bull; Bar &bull; Scatter &bull; Bubble</span>
             </div>
           </div>
         </div>
@@ -985,6 +1060,235 @@
       </section>
 
       <!-- =================================================================== -->
+      <!-- TAB: ATTACK RATIO & THREAT ANALYTICS VISUALIZER (6 GRAPHS) -->
+      <!-- =================================================================== -->
+      <section class="tab-pane" id="attack-ratio-visualizer">
+        <!-- Interactive Help Box -->
+        <div class="help-box" id="help-attack-ratio">
+          <div class="help-header">
+            <div class="help-title">
+              <span class="help-icon">💡</span>
+              <strong>First-Time Guide: Understanding Attack Ratio & The 6 Interactive Graph Types</strong>
+            </div>
+            <button class="btn-hide-help" onclick="toggleHelpBox('help-attack-ratio')">Hide ✕</button>
+          </div>
+          <div class="help-body">
+            <div class="help-step-item">
+              <span class="step-num">1</span>
+              <span><strong>Attack Ratio Formula:</strong> Quantifies $\text{Attack Ratio} = \left(\frac{\text{Confirmed Threat Events}}{\text{Total Ingested Telemetry}}\right) \times 100$. Pinpoints high-risk bursts vs normal baseline volume.</span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">2</span>
+              <span><strong>6 Specialized Chart Modes:</strong>
+                <strong>Line</strong> (temporal trends), <strong>Area</strong> (cumulative attack volume), <strong>Column</strong> (interval comparisons), <strong>Bar (Horizontal)</strong> (long MITRE labels), <strong>Scatter</strong> (2-variable outlier correlations), and <strong>Bubble</strong> (3-variable risk & volume matrix).
+              </span>
+            </div>
+            <div class="help-step-item">
+              <span class="step-num">3</span>
+              <span><strong>Actionable Triage:</strong> Hover over any point, bar, or bubble to inspect exact ratios and timestamps. Click <em>"Investigate in Triage"</em> or <em>"Inspect in SPL"</em> to immediately analyze telemetry!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Attack Ratio KPI Metrics -->
+        <div class="kpi-grid mb-4">
+          <div class="kpi-card kpi-critical">
+            <div class="kpi-header">
+              <span class="kpi-title">OVERALL ATTACK RATIO</span>
+              <span class="kpi-icon">🎯</span>
+            </div>
+            <div class="kpi-value text-red" id="graph-kpi-ratio">38.5%</div>
+            <div class="kpi-trend text-red" id="graph-kpi-ratio-sub">10 Malicious / 26 Ingested Events</div>
+          </div>
+          <div class="kpi-card kpi-high">
+            <div class="kpi-header">
+              <span class="kpi-title">PEAK ATTACK VELOCITY</span>
+              <span class="kpi-icon">⚡</span>
+            </div>
+            <div class="kpi-value text-amber" id="graph-kpi-velocity">11 Events / 40s</div>
+            <div class="kpi-trend">Burst Velocity: ~16.5 EPS Equivalent</div>
+          </div>
+          <div class="kpi-card kpi-info">
+            <div class="kpi-header">
+              <span class="kpi-title">PEAK CONCENTRATION</span>
+              <span class="kpi-icon">📈</span>
+            </div>
+            <div class="kpi-value text-cyan" id="graph-kpi-peak-ratio">91.7%</div>
+            <div class="kpi-trend">11 Fails + 1 Success in 1-Min Bin</div>
+          </div>
+          <div class="kpi-card kpi-success">
+            <div class="kpi-header">
+              <span class="kpi-title">TARGET COMPROMISE RATE</span>
+              <span class="kpi-icon">🛡️</span>
+            </div>
+            <div class="kpi-value text-green" id="graph-kpi-breach-ratio">12.5%</div>
+            <div class="kpi-trend text-red">1 Breached / 8 Targeted Accounts</div>
+          </div>
+        </div>
+
+        <!-- Main Chart Studio Panel -->
+        <div class="glass-panel mb-4">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/><circle cx="19" cy="9" r="2"/></svg>
+              <span>Attack Ratio Graph & Multi-Vector Threat Studio</span>
+            </div>
+            <div class="graph-header-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+              <span class="panel-badge highlight-cyan" id="graph-active-dataset-badge">Telemetry: Active Workspace</span>
+              <button class="btn btn-sm btn-outline-cyan" id="btn-export-graph" title="Download High-Res Graph Snapshot">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export Snapshot</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Chart Type Switcher Toolbar -->
+          <div class="chart-studio-toolbar">
+            <div class="chart-type-selector-group">
+              <span class="toolbar-label">Select Graph Mode:</span>
+              <div class="chart-type-buttons">
+                <button class="btn-chart-type active" data-chart-type="line" id="btn-chart-line" title="Line Chart: Displays metrics & trends continuously over time">
+                  <span class="chart-type-icon">📈</span>
+                  <span class="chart-type-text">Line Chart</span>
+                </button>
+                <button class="btn-chart-type" data-chart-type="area" id="btn-chart-area" title="Area Chart: Volume & cumulative attack progression beneath the curve">
+                  <span class="chart-type-icon">🌊</span>
+                  <span class="chart-type-text">Area Chart</span>
+                </button>
+                <button class="btn-chart-type" data-chart-type="column" id="btn-chart-column" title="Column Chart: Vertical bars comparing values across categories or discrete intervals">
+                  <span class="chart-type-icon">📊</span>
+                  <span class="chart-type-text">Column Chart</span>
+                </button>
+                <button class="btn-chart-type" data-chart-type="bar" id="btn-chart-bar" title="Bar Chart: Horizontal bars ideal for comparing categories with long label names">
+                  <span class="chart-type-icon">📉</span>
+                  <span class="chart-type-text">Bar Chart (Horizontal)</span>
+                </button>
+                <button class="btn-chart-type" data-chart-type="scatter" id="btn-chart-scatter" title="Scatter Chart: Plots two numeric variables to identify correlations, patterns, or outliers">
+                  <span class="chart-type-icon">⁘</span>
+                  <span class="chart-type-text">Scatter Chart</span>
+                </button>
+                <button class="btn-chart-type" data-chart-type="bubble" id="btn-chart-bubble" title="Bubble Chart: Extends scatter plot by varying point size to represent a 3rd variable">
+                  <span class="chart-type-icon">⚪</span>
+                  <span class="chart-type-text">Bubble Chart</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Metric Dimension & Time Filters -->
+            <div class="chart-dimension-controls mt-3">
+              <div class="chart-filter-item">
+                <label>Focus Dimension / Metric:</label>
+                <select class="soc-select" id="graph-dimension-select">
+                  <option value="ratio_time" selected>Attack Ratio (%) Timeline & Velocity</option>
+                  <option value="volume_split">Malicious vs Benign Event Volume Split</option>
+                  <option value="mitre_tactics">Attack Ratio by MITRE Technique</option>
+                  <option value="entity_outliers">Entity Threat & Outlier Correlation</option>
+                  <option value="cumulative_growth">Cumulative Volume & Blast Growth</option>
+                </select>
+              </div>
+
+              <div class="chart-filter-item">
+                <label>Time Window / Intrusion Phase:</label>
+                <select class="soc-select" id="graph-timeslice-select">
+                  <option value="all" selected>All Phases (Full Intrusion Timeline)</option>
+                  <option value="spray">Phase 1: Password Spray (14:32 UTC)</option>
+                  <option value="macro">Phase 2: Weaponized Macro (15:10 UTC)</option>
+                  <option value="lsass">Phase 3: LSASS Access & Dump (15:12 UTC)</option>
+                  <option value="c2">Phase 4: C2 Beaconing (15:16–15:17 UTC)</option>
+                </select>
+              </div>
+
+              <div class="chart-filter-item">
+                <label>Telemetry Source / Dataset:</label>
+                <select class="soc-select" id="graph-dataset-select">
+                  <option value="active" selected>Active Workspace Telemetry</option>
+                  <option value="1_spray">Practice 1: Password Spray (4625)</option>
+                  <option value="2_macro">Practice 2: Phishing Macro & PS (4104)</option>
+                  <option value="3_lsass">Practice 3: LSASS Dump & C2 Beacon</option>
+                  <option value="4_apt">Practice 4: Multi-Stage APT Intrusion</option>
+                  <option value="5_baseline">Practice 5: Normal Baseline (0% Clean)</option>
+                </select>
+              </div>
+
+              <div class="chart-filter-item chart-filter-actions">
+                <label>&nbsp;</label>
+                <div style="display: flex; gap: 0.4rem;">
+                  <button class="btn btn-sm btn-outline-cyan" id="btn-graph-reset-view" title="Reset Chart Zoom & Filters">Reset</button>
+                  <button class="btn btn-sm btn-outline-green" id="btn-graph-simulate-stream" title="Trigger Telemetry Heartbeat Pulse">⚡ Pulse</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Graph Description Banner -->
+          <div class="graph-description-card mt-3" id="graph-description-card">
+            <div class="desc-icon" id="graph-desc-icon">📈</div>
+            <div class="desc-body">
+              <strong id="graph-desc-title">Line Chart: Temporal Attack Ratio & Threat Velocity</strong>
+              <p id="graph-desc-text">Plots continuous malicious event frequency and calculated Attack Ratio (%) over time intervals to pinpoint exact adversary breach bursts and evasion windows.</p>
+            </div>
+          </div>
+
+          <!-- Canvas & Interactive Viewport Container -->
+          <div class="graph-viewport-wrapper mt-3">
+            <div class="graph-canvas-container" id="graph-canvas-container">
+              <canvas id="attack-ratio-canvas" width="1100" height="420"></canvas>
+              <!-- Interactive SVG overlay for crisp lines, axes, and interactive hover dots -->
+              <svg id="attack-ratio-svg" class="graph-svg-overlay" width="100%" height="100%"></svg>
+              <!-- Interactive Hover Crosshair -->
+              <div class="graph-crosshair-v" id="graph-crosshair-v"></div>
+              <div class="graph-crosshair-h" id="graph-crosshair-h"></div>
+              <!-- Floating Glassmorphism Tooltip -->
+              <div class="graph-floating-tooltip" id="graph-floating-tooltip">
+                <!-- Populated dynamically on mousemove -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart Dynamic Legend & Stats Footer -->
+          <div class="graph-legend-footer mt-3" id="graph-legend-footer">
+            <!-- Rendered dynamically based on active chart type -->
+          </div>
+        </div>
+
+        <!-- Anomaly Correlation & Outlier Investigator Table -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <span>Attack Ratio Breakdown & Outlier Intelligence Table</span>
+            </div>
+            <span class="panel-badge highlight-green" id="outlier-table-badge">All Outliers Flagged</span>
+          </div>
+
+          <div class="table-meta-bar mb-2">
+            <span class="text-muted" id="graph-table-count">Showing correlated threat clusters and anomaly ratios</span>
+            <span class="text-dim" style="font-size: 0.72rem;">💡 Tip: Click any category or outlier row to cross-filter the graph or launch an instant SPL query.</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="soc-table" id="table-attack-ratio-breakdown">
+              <thead>
+                <tr>
+                  <th>Category / Entity / Technique</th>
+                  <th>Event ID / Protocol</th>
+                  <th>Total Events</th>
+                  <th>Attack Events</th>
+                  <th>Benign Events</th>
+                  <th>Attack Ratio (%)</th>
+                  <th>Anomaly Severity</th>
+                  <th>SOC Action</th>
+                </tr>
+              </thead>
+              <tbody id="attack-ratio-table-body">
+                <!-- Dynamically rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
       <!-- TAB 8: MITRE ATT&CK ENTERPRISE MATRIX NAVIGATOR -->
       <!-- =================================================================== -->
       <section class="tab-pane" id="mitre-matrix-view">
@@ -1563,6 +1867,9 @@
         <button class="btn btn-secondary" id="btn-close-inspector-footer">Close</button>
         <button class="btn btn-primary" id="btn-inspector-action">🛡️ Execute Containment Action</button>
       </div>
+    </div>
+  </div>
+
   <!-- File Collision Mitigation Modal -->
   <div class="soc-modal-backdrop" id="file-collision-modal">
     <div class="soc-modal-dialog">
